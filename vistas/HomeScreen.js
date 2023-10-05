@@ -4,6 +4,27 @@ import { Appbar, Button, IconButton } from 'react-native-paper';
 import { styles } from './../assets/css/HomeCss';
 
 const HomeScreen = ({ navigation }) => {
+  const confirmExit = () => {
+    Alert.alert(
+      'Confirmar',
+      '¿Estás seguro de que deseas salir?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Salir',
+          onPress: () => {
+            // Aquí puedes agregar cualquier lógica adicional antes de salir
+            navigation.navigate('Inicio de Sesion');
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* Barra de Aplicaciones (AppBar) */}
@@ -36,23 +57,13 @@ const HomeScreen = ({ navigation }) => {
           icon="bell"
           label="Notificaciones"
           onPress={() => {
-            
+            // Agrega aquí la lógica para mostrar notificaciones
           }}
         />
         <IconButton
           icon="exit-to-app"
           label="Salir"
-          onPress={() => {
-            Alert.alert('Éxito', 'Sesion cerrada', [
-              {
-                text: 'OK',
-                onPress: () => {
-                  // Redirige a la pantalla "Home" después del inicio de sesión exitoso
-                  navigation.navigate('Inicio de Sesion');
-                },
-              },
-            ]);
-          }}
+          onPress={confirmExit} // Llama a la función confirmExit al presionar el botón de salida
         />
       </View>
     </View>

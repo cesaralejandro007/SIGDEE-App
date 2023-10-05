@@ -12,22 +12,50 @@ export default function App() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState({ label: '', key: '' });
-
+ 
+ 
   const handleLogin = () => {
-    if (username === '28055655' && password === 'Diplomado' && selectedRole.key === 'Super Usuario') {
-      Alert.alert('Éxito', 'Inicio de sesión exitoso', [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Redirige a la pantalla "Home" después del inicio de sesión exitoso
-            navigation.navigate('Pagina Principal');
-          },
-        },
-      ]);
-    } else {
-      Alert.alert('Error', 'Credenciales incorrectas');
-    }
+    const formData = new FormData();
+    formData.append('accion', 'ingresar');
+    formData.append('tipo', selectedRole.key);
+    formData.append('user', username);
+    formData.append('password', password);
+  
+    fetch('http://192.168.250.4/dashboard/www/SIGDEE/?pagina=Y0NHU1BSU1JucU01cVVwWk05NmRCZz09', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    })
+      .then((response) => response.text()) // Convierte la respuesta a texto
+      .then((text) => {
+        try {
+          const data = JSON.parse(text); // Analiza el texto como JSON
+          if (data.estatus == 1) {
+
+            Alert.alert('Éxito', data.message, [
+              {
+                text: 'OK',
+                onPress: () => {
+                  // Redirige a la pantalla "Home" después del inicio de sesión exitoso
+                  navigation.navigate('Pagina Principal');
+                },
+              },
+            ]);
+
+          } else {
+            Alert.alert('Error', data.message);
+          }
+        } catch (error) {
+          console.error('Error al analizar la respuesta JSON:', error);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
+  
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
