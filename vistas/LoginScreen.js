@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalSelector from 'react-native-modal-selector';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
 
@@ -21,7 +22,7 @@ export default function App() {
     formData.append('user', username);
     formData.append('password', password);
   
-    fetch('http://192.168.250.4/dashboard/www/SIGDEE/?pagina=Y0NHU1BSU1JucU01cVVwWk05NmRCZz09', {
+    fetch('http://192.168.0.128/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09', {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -33,6 +34,40 @@ export default function App() {
         try {
           const data = JSON.parse(text); // Analiza el texto como JSON
           if (data.estatus == 1) {
+                    const formData1 = new FormData();
+                    formData1.append('accion', 'obtener_datos');
+                    formData1.append('tipo', selectedRole.key);
+                    formData1.append('user', username);
+                      // El inicio de sesión fue exitoso
+                  // Ahora solicita los datos de la sesión
+                  fetch('http://192.168.0.128/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'multipart/form-data',
+                    },
+                    body: formData1,
+                  })
+                    .then((response) => response.text())
+                    .then((sessionData) => {
+                      if (sessionData) {
+                        const sessionObj = JSON.parse(sessionData);
+                                              // Guardar los datos de la sesión en AsyncStorage
+                        AsyncStorage.setItem('userSession', JSON.stringify(sessionObj))
+                        .then(() => {
+                          // Los datos de la sesión se han guardado con éxito
+                          // Puedes realizar acciones adicionales aquí si es necesario
+                          Alert.alert('Éxito', 'Sesión guardada con éxito');
+                          navigation.navigate('Pagina Principal');
+                        })
+                        .catch((error) => {
+                          console.error('Error al guardar la sesión en AsyncStorage:', error);
+                        });
+                      }
+                    })
+                    .catch((error) => {
+                      console.error('Error al obtener la sesión:', error);
+                    });
+
 
             Alert.alert('Éxito', data.message, [
               {
@@ -173,3 +208,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+
