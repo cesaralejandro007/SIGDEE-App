@@ -1,9 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, IconButton } from 'react-native-paper';
 import { styles } from './../assets/css/HomeCss';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
+
+  const [nombreUsuario, setNombreUsuario] = useState(null);
+
+  useEffect(() => {
+    async function obtenerNombreUsuario() {
+      try {
+        const session = await AsyncStorage.getItem('userSession');
+
+        if (session !== null) {
+          const dato = JSON.parse(session);
+
+          const arreglo = dato[0].nombre.split(' ');
+          const primerValorN = arreglo[0];
+
+          const arreglo1 = dato[0].apellido.split(' ');
+          const primerValorA = arreglo1[0];
+
+          const nombre_apellido = primerValorN + " " + primerValorA;
+
+          setNombreUsuario(nombre_apellido);
+        } else {
+          // Salir del sistema
+            navigation.navigate('Inicio de Sesion');
+        }
+      } catch (error) {
+        // Maneja cualquier error que pueda ocurrir durante la operación AsyncStorage
+        console.error('Error al obtener el dato compartido:', error);
+      }
+    }
+
+    obtenerNombreUsuario();
+  }, []);
+
+
   const confirmExit = () => {
     Alert.alert(
       'Confirmar',
@@ -30,7 +65,7 @@ const HomeScreen = ({ navigation }) => {
       {/* Barra de Aplicaciones (AppBar) */}
       <Appbar.Header style={styles.Header1}>
         <Appbar.Action color="white" icon="menu" onPress={() => console.log('Abrir menú')} />
-        <Appbar.Content titleStyle={{ color: 'white' }} title="¡Bienvenido/a de nuevo, Cesar V. 👋" />
+        <Appbar.Content titleStyle={{ color: 'white' }}  title={`¡Bienvenido/a de nuevo, ${nombreUsuario ? nombreUsuario : ''} 👋`}/>
       </Appbar.Header>
 
       <View style={styles.content}>
