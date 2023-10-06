@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const ProfileScreen = () => {
 
+const ProfileScreen = () => {
+  const [id, setId] = useState(null);
   const [cedula, setCedula] = useState(null);
   const [nombreUsuario, setNombreUsuario] = useState(null);
   const [rol, setRol] = useState(null);
   const [Email, setEmail] = useState(null);
   const [telefono, setTelefono] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [editedEmail, setEditedEmail] = useState('');
+  const [editedTelefono, setEditedTelefono] = useState('');
 
   useEffect(() => {
     async function obtenerNombreUsuario() {
@@ -24,7 +28,7 @@ const ProfileScreen = () => {
           const primerValorA = arreglo1[0];
 
           const nombre_apellido = primerValorN + " " + primerValorA;
-
+          setId(dato[0].id);
           setCedula(dato[0].cedula);
           setNombreUsuario(nombre_apellido);
           setRol(dato[0].nombreusuario);
@@ -32,10 +36,9 @@ const ProfileScreen = () => {
           setTelefono(dato[0].telefono);
         } else {
           // Salir del sistema
-            navigation.navigate('Inicio de Sesion');
+          navigation.navigate('Inicio de Sesion');
         }
       } catch (error) {
-        // Maneja cualquier error que pueda ocurrir durante la operación AsyncStorage
         console.error('Error al obtener el dato compartido:', error);
       }
     }
@@ -43,6 +46,60 @@ const ProfileScreen = () => {
     obtenerNombreUsuario();
   }, []);
 
+  const guardarCambios = async () => {
+    // Actualiza el estado con los nuevos valores de correo y teléfono
+    setEmail(editedEmail);
+    setTelefono(editedTelefono);
+
+    // Aquí puedes implementar la lógica para guardar los cambios en AsyncStorage
+    try {
+      const newData = {
+        cedula: cedula,
+        nombre: nombreUsuario,
+        rol: rol,
+        correo: editedEmail,
+        telefono: editedTelefono,
+      };
+
+      await AsyncStorage.setItem('userSession', JSON.stringify([newData]));
+
+      // Notifica al usuario que los cambios se han guardado correctamente
+
+      const formData = new FormData();
+      formData.append('accion', 'editarperfil');
+      formData.append('id', id);
+      formData.append('correo', editedEmail);
+      formData.append('telefono', editedTelefono);
+        // El inicio de sesión fue exitoso
+    // Ahora solicita los datos de la sesión
+      fetch('http://192.168.0.131/dashboard/www/SIGDEE/?pagina=NWY0U0dmUXFHUEsvTTkzV3pQV081QT09', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      })
+        .then((response) => response.text())
+        .then((text) => {
+          console.log(text)
+          if (data.estatus == 1){
+  
+            Alert.alert('Éxito', data.message);
+  
+          }else {
+            Alert.alert('Error', data.message);
+          }
+        })
+        .catch((error) => {
+          console.error('Error al obtener la sesión:', error);
+        });
+  
+      // Cierra el modal
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Error al guardar los cambios:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -51,7 +108,7 @@ const ProfileScreen = () => {
       </TouchableOpacity>
 
       <View style={styles.table}>
-      <View style={styles.row}>
+        <View style={styles.row}>
           <View style={styles.cell}>
             <Text style={styles.cellLabel}>Cedula:</Text>
             <Text style={styles.cellValue}>{cedula ? cedula : ''}</Text>
@@ -84,11 +141,34 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button title="Editar Perfil" onPress={() => {/* Lógica para editar perfil */}} />
+        <Button title="Editar Perfil" onPress={() => setModalVisible(true)} />
       </View>
+
+      {/* Modal para editar correo y teléfono */}
+      <Modal visible={isModalVisible} animationType="slide">
+        <View style={styles.modalContent}>
+          <Text>Editar Correo y Teléfono</Text>
+          <Text>Correo:</Text>
+          <TextInput
+            style={styles.input}
+            value={editedEmail}
+            onChangeText={setEditedEmail}
+          />
+          <Text>Teléfono:</Text>
+          <TextInput
+            style={styles.input}
+            value={editedTelefono}
+            onChangeText={setEditedTelefono}
+          />
+
+          <Button title="Guardar Cambios" onPress={guardarCambios} />
+          <Button title="Cancelar" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -105,7 +185,7 @@ const styles = StyleSheet.create({
     height: 150,
   },
   table: {
-    width: '80%', // Ajusta el ancho de la tabla según tus necesidades
+    width: '80%',
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 5,
@@ -126,20 +206,20 @@ const styles = StyleSheet.create({
   },
   cellValue: {},
   buttonContainer: {
-    marginTop: 20, // Margen superior para separar el botón de la tabla
+    marginTop: 20,
   },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  input: {
+    width: '80%',
+    borderColor: 'gray',
+    borderWidth: 1,
+    padding: 8,
+    marginBottom: 16,
   },
-  email: {
-    fontSize: 16,
-    marginBottom: 20,
+  modalContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
 export default ProfileScreen;
-
-
-
