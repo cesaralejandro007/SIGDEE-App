@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import IP from './../config/config';
 
 const ProfileScreen = () => {
   const [id, setId] = useState(null);
@@ -25,7 +26,7 @@ const ProfileScreen = () => {
   const [editedTelefono, setEditedTelefono] = useState('');
 
   useEffect(() => {
-    async function obtenerNombreUsuario() {
+    async function obtenerdatosUsuario() {
       try {
         const session = await AsyncStorage.getItem('userSession');
 
@@ -58,7 +59,7 @@ const ProfileScreen = () => {
       }
     }
 
-    obtenerNombreUsuario();
+    obtenerdatosUsuario();
   }, []);
 
   const guardarCambios = async () => {
@@ -75,7 +76,7 @@ const ProfileScreen = () => {
 
       // Realiza la solicitud para modificar el perfil
       const response = await fetch(
-        'http://192.168.250.2/dashboard/www/SIGDEE/?pagina=NWY0U0dmUXFHUEsvTTkzV3pQV081QT09',
+        `http://${IP}/dashboard/www/SIGDEE/?pagina=NWY0U0dmUXFHUEsvTTkzV3pQV081QT09`,
         {
           method: 'POST',
           headers: {
@@ -107,6 +108,15 @@ const ProfileScreen = () => {
         Alert.alert('Éxito', data.message);
         setModalVisible(false);
       } else {
+        const session = await AsyncStorage.getItem('userSession');
+        if (session !== null) {
+          const dato = JSON.parse(session);
+          setEmail(dato[0].correo);
+          setTelefono(dato[0].telefono);
+        } else {
+          // Salir del sistema
+          navigation.navigate('Inicio de Sesion');
+        }
         Alert.alert('Error', data.message);
       }
     } catch (error) {

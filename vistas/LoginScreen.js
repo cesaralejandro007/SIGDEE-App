@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalSelector from 'react-native-modal-selector';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import IP from './../config/config';
 export default function App() {
 
   const navigation = useNavigation();
@@ -22,7 +22,7 @@ export default function App() {
     formData.append('user', username);
     formData.append('password', password);
   
-    fetch('http://192.168.250.2/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09', {
+    fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -40,7 +40,7 @@ export default function App() {
                     formData1.append('user', username);
                       // El inicio de sesión fue exitoso
                   // Ahora solicita los datos de la sesión
-                  fetch('http://192.168.250.2/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09', {
+                  fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'multipart/form-data',
