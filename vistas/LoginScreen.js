@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Button, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalSelector from 'react-native-modal-selector';
 import { useNavigation } from '@react-navigation/native';
@@ -130,7 +130,11 @@ export default function App() {
             onPress={toggleShowPassword}
           />
         </View>
-        <Button title="Iniciar Sesión" onPress={handleLogin} />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={handleLogin} style={styles.buttonG}>
+            <Text style={styles.buttonTextG}>Iniciar Sesión</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -199,6 +203,17 @@ const styles = StyleSheet.create({
   optionText: {
     // Estilo para el texto de las opciones
     fontSize: 16,
+  },buttonContainer: {
+    alignItems: 'center',
+  },buttonG: {
+    width: 130,
+    backgroundColor: 'blue', // Cambia el color de fondo aquí
+    borderRadius: 5,
+    padding: 10,
+  },
+  buttonTextG: {
+    color: 'white', // Cambia el color del texto aquí
+    textAlign: 'center',
   },
 });
 
