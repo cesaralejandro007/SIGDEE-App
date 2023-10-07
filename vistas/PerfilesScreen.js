@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  Alert,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
   const [id, setId] = useState(null);
   const [cedula, setCedula] = useState(null);
+  const [nombre, setNombre] = useState(null);
+  const [apellido, setApellido] = useState(null);
   const [nombreUsuario, setNombreUsuario] = useState(null);
   const [rol, setRol] = useState(null);
   const [Email, setEmail] = useState(null);
@@ -21,24 +32,28 @@ const ProfileScreen = () => {
         if (session !== null) {
           const dato = JSON.parse(session);
 
-          const arreglo = dato[0].nombre.split(' ');
-          const primerValorN = arreglo[0];
+          const nombre = dato[0].nombre ? dato[0].nombre : '';
+          const apellido = dato[0].apellido ? dato[0].apellido : '';
 
-          const arreglo1 = dato[0].apellido.split(' ');
-          const primerValorA = arreglo1[0];
+          const primerValorN = nombre.split(' ')[0];
+          const primerValorA = apellido.split(' ')[0];
 
-          const nombre_apellido = primerValorN + " " + primerValorA;
-          setId(dato[0].id);
+          const nombre_apellido = primerValorN + ' ' + primerValorA;
+
           setCedula(dato[0].cedula);
+          setNombre(dato[0].nombre);
+          setApellido(dato[0].apellido);
           setNombreUsuario(nombre_apellido);
           setRol(dato[0].nombreusuario);
           setEmail(dato[0].correo);
           setTelefono(dato[0].telefono);
+          setId(dato[0].id);
         } else {
           // Salir del sistema
           navigation.navigate('Inicio de Sesion');
         }
       } catch (error) {
+        // Maneja cualquier error que pueda ocurrir durante la operación AsyncStorage
         console.error('Error al obtener el dato compartido:', error);
       }
     }
@@ -47,57 +62,59 @@ const ProfileScreen = () => {
   }, []);
 
   const guardarCambios = async () => {
-    // Actualiza el estado con los nuevos valores de correo y teléfono
-    setEmail(editedEmail);
-    setTelefono(editedTelefono);
-
-    // Aquí puedes implementar la lógica para guardar los cambios en AsyncStorage
     try {
-      const newData = {
-        cedula: cedula,
-        nombre: nombreUsuario,
-        rol: rol,
-        correo: editedEmail,
-        telefono: editedTelefono,
-      };
-
-      await AsyncStorage.setItem('userSession', JSON.stringify([newData]));
-
-      // Notifica al usuario que los cambios se han guardado correctamente
+      // Actualiza el estado con los nuevos valores de correo y teléfono
+      setEmail(editedEmail);
+      setTelefono(editedTelefono);
 
       const formData = new FormData();
-      formData.append('accion', 'editarperfil');
+      formData.append('accion', 'modificarperfil');
       formData.append('id', id);
       formData.append('correo', editedEmail);
       formData.append('telefono', editedTelefono);
-        // El inicio de sesión fue exitoso
-    // Ahora solicita los datos de la sesión
-      fetch('http://192.168.0.131/dashboard/www/SIGDEE/?pagina=NWY0U0dmUXFHUEsvTTkzV3pQV081QT09', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-      })
-        .then((response) => response.text())
-        .then((text) => {
-          console.log(text)
-          if (data.estatus == 1){
-  
-            Alert.alert('Éxito', data.message);
-  
-          }else {
-            Alert.alert('Error', data.message);
-          }
-        })
-        .catch((error) => {
-          console.error('Error al obtener la sesión:', error);
-        });
-  
-      // Cierra el modal
-      setModalVisible(false);
+
+      // Realiza la solicitud para modificar el perfil
+      const response = await fetch(
+        'http://192.168.250.2/dashboard/www/SIGDEE/?pagina=NWY0U0dmUXFHUEsvTTkzV3pQV081QT09',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          body: formData,
+        }
+      );
+        
+      if (!response.ok) {
+        // Si hay un error en la solicitud, muestra un mensaje de error
+        const data = await response.json();
+        throw new Error(data.message);
+      }
+
+      const data = await response.json();
+
+      if (data.estatus == 1) {
+        const newData = {
+          id: id,
+          cedula: cedula,
+          nombre: nombre,
+          apellido: apellido,
+          nombreusuario: rol,
+          correo: editedEmail,
+          telefono: editedTelefono,
+        };
+        await AsyncStorage.setItem('userSession', JSON.stringify([newData]));
+        Alert.alert('Éxito', data.message);
+        setModalVisible(false);
+      } else {
+        Alert.alert('Error', data.message);
+      }
     } catch (error) {
       console.error('Error al guardar los cambios:', error);
+      Alert.alert(
+        'Error',
+        'No se pudieron guardar los cambios. Por favor, inténtelo de nuevo más tarde.'
+      );
     }
   };
 
@@ -117,7 +134,9 @@ const ProfileScreen = () => {
         <View style={styles.row}>
           <View style={styles.cell}>
             <Text style={styles.cellLabel}>Nombre y apellido:</Text>
-            <Text style={styles.cellValue}>{nombreUsuario ? nombreUsuario : ''}</Text>
+            <Text style={styles.cellValue}>
+              {nombreUsuario ? nombreUsuario : ''}
+            </Text>
           </View>
         </View>
         <View style={styles.row}>
@@ -139,30 +158,40 @@ const ProfileScreen = () => {
           </View>
         </View>
       </View>
-
       <View style={styles.buttonContainer}>
-        <Button title="Editar Perfil" onPress={() => setModalVisible(true)} />
+        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.buttonG}>
+          <Text style={styles.buttonTextG}>Editar Perfil</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Modal para editar correo y teléfono */}
       <Modal visible={isModalVisible} animationType="slide">
         <View style={styles.modalContent}>
-          <Text>Editar Correo y Teléfono</Text>
+          <Text style={styles.titulo}>Editar Perfil</Text>
           <Text>Correo:</Text>
           <TextInput
+            placeholder="Correo:"
             style={styles.input}
             value={editedEmail}
             onChangeText={setEditedEmail}
           />
           <Text>Teléfono:</Text>
           <TextInput
+            placeholder="Teléfono:"
             style={styles.input}
             value={editedTelefono}
             onChangeText={setEditedTelefono}
           />
-
-          <Button title="Guardar Cambios" onPress={guardarCambios} />
-          <Button title="Cancelar" onPress={() => setModalVisible(false)} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={guardarCambios} style={styles.buttonG}>
+              <Text style={styles.buttonTextG}>Guardar Cambios</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.buttonC}>
+              <Text style={styles.buttonTextC}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </View>
@@ -208,6 +237,24 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 20,
   },
+  buttonG: {
+    backgroundColor: 'blue', // Cambia el color de fondo aquí
+    borderRadius: 5,
+    padding: 10,
+  },
+  buttonTextG: {
+    color: 'white', // Cambia el color del texto aquí
+    textAlign: 'center',
+  },
+  buttonC: {
+    backgroundColor: 'red', // Cambia el color de fondo aquí
+    borderRadius: 5,
+    padding: 10,
+  },
+  buttonTextC: {
+    color: 'white', // Cambia el color del texto aquí
+    textAlign: 'center',
+  },
   input: {
     width: '80%',
     borderColor: 'gray',
@@ -220,6 +267,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  titulo:{
+    padding: 10,
+    fontSize: 25
+  }
 });
 
 export default ProfileScreen;

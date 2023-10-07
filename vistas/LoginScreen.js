@@ -22,7 +22,7 @@ export default function App() {
     formData.append('user', username);
     formData.append('password', password);
   
-    fetch('http://192.168.0.131/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09', {
+    fetch('http://192.168.250.2/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09', {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -40,7 +40,7 @@ export default function App() {
                     formData1.append('user', username);
                       // El inicio de sesión fue exitoso
                   // Ahora solicita los datos de la sesión
-                  fetch('http://192.168.0.131/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09', {
+                  fetch('http://192.168.250.2/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'multipart/form-data',
