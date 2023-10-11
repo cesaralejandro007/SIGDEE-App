@@ -1,89 +1,126 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Button, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalSelector from 'react-native-modal-selector';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import IP from './../config/config';
+import Rsa from 'react-native-rsa-native';
+import base64 from 'base-64';
 export default function App() {
-
   const navigation = useNavigation();
-  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState({ label: '', key: '' });
- 
- 
-  const handleLogin = () => {
-    const formData = new FormData();
-    formData.append('accion', 'ingresar');
-    formData.append('tipo', selectedRole.key);
-    formData.append('user', username);
-    formData.append('password', password);
-  
+  const [publicKey, setPublicKey] = useState('');
+  const [publicKeyEncri, setPasswordEncrictado] = useState('');
+  useEffect(() => {
+    const formData2 = new FormData();
+    formData2.append('accion', 'generar_llaves_rsa');// Realizar una solicitud HTTP al servidor para obtener la clave pública RSA
     fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      body: formData,
+      body: formData2,
     })
-      .then((response) => response.text()) // Convierte la respuesta a texto
+      .then((response) => response.text())
       .then((text) => {
-        try {
-          const data = JSON.parse(text); // Analiza el texto como JSON
-          if (data.estatus == 1) {
-                    const formData1 = new FormData();
-                    formData1.append('accion', 'obtener_datos');
-                    formData1.append('tipo', selectedRole.key);
-                    formData1.append('user', username);
-                      // El inicio de sesión fue exitoso
-                  // Ahora solicita los datos de la sesión
-                  fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'multipart/form-data',
-                    },
-                    body: formData1,
-                  })
-                    .then((response) => response.text())
-                    .then((sessionData) => {
-                      if (sessionData) {
-                        const sessionObj = JSON.parse(sessionData);
-                                              // Guardar los datos de la sesión en AsyncStorage
-                        AsyncStorage.setItem('userSession', JSON.stringify(sessionObj))
-                        .then(() => {
-                          Alert.alert('Éxito', data.message, [
-                            {
-                              text: 'OK',
-                              onPress: () => {
-                                // Redirige a la pantalla "Home" después del inicio de sesión exitoso
-                                navigation.navigate('Pagina Principal');
-                              },
-                            },
-                          ]);
-                        })
-                        .catch((error) => {
-                          console.error('Error al guardar la sesión en AsyncStorage:', error);
-                        });
-                      }
-                    })
-                    .catch((error) => {
-                      console.error('Error al obtener la sesión:', error);
-                    });
-          } else {
-            Alert.alert('Error', data.message);
-          }
-        } catch (error) {
-          console.error('Error al analizar la respuesta JSON:', error);
-        }
+        const publicKeyDecoded = base64.decode(text);
+        console.log(publicKeyDecoded);
+        setPublicKey(publicKeyDecoded);
       })
       .catch((error) => {
-        console.error('Error:', error);
+        console.error('Error al obtener la clave pública:', error);
       });
+  }, []); // Este efecto se ejecuta solo una vez al montar el componente
+
+  const handleLogin = async () => {
+    try {
+      
+      // Ahora puedes usar Crypto para cifrar la contraseña utilizando la clave pública RSA
+      if (password && publicKey) {
+        Rsa.encrypt(password, publicKey)
+          .then(encryptedData => {
+            // El resultado cifrado está en `encryptedData`
+            console.log('Datos cifrados:', encryptedData);
+            setPasswordEncrictado(encryptedData);
+          })
+          .catch(error => {
+            console.error('Error al cifrar:', error);
+          });
+      } else {
+        console.error('La contraseña o la clave pública son nulas o no están definidas.');
+      }
+      // Ahora puedes enviar 'username' y 'encryptedPassword' al servidor PHP
+      const formData = new FormData();
+      formData.append('accion', 'ingresar');
+      formData.append('tipo', selectedRole.key);
+      formData.append('user', username);
+      formData.append('password', publicKeyEncri);
+
+      fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      })
+        .then((response) => response.text())
+        .then((text) => {
+          try {
+            const data = JSON.parse(text);
+            if (data.estatus === 1) {
+              const formData1 = new FormData();
+              formData1.append('accion', 'obtener_datos');
+              formData1.append('tipo', selectedRole.key);
+              formData1.append('user', username);
+
+              fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+                body: formData1,
+              })
+                .then((response) => response.text())
+                .then((sessionData) => {
+                  if (sessionData) {
+                    const sessionObj = JSON.parse(sessionData);
+                    AsyncStorage.setItem('userSession', JSON.stringify(sessionObj))
+                      .then(() => {
+                        Alert.alert('Éxito', data.message, [
+                          {
+                            text: 'OK',
+                            onPress: () => {
+                              navigation.navigate('Pagina Principal');
+                            },
+                          },
+                        ]);
+                      })
+                      .catch((error) => {
+                        console.error('Error al guardar la sesión en AsyncStorage:', error);
+                      });
+                  }
+                })
+                .catch((error) => {
+                  console.error('Error al obtener la sesión:', error);
+                });
+            } else {
+              Alert.alert('Error', data.message);
+            }
+          } catch (error) {
+            console.error('Error al analizar la respuesta JSON:', error);
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    } catch (error) {
+      console.error('Error al cifrar la contraseña:', error);
+    }
   };
-  
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -102,12 +139,12 @@ export default function App() {
           ]}
           initValue={`Selecciona un rol`}
           onChange={item => setSelectedRole(item)}
-          style={styles.selector} // Estilo para el botón del selector
-          selectStyle={styles.select} // Estilo para el cuadro de diálogo del selector
-          optionStyle={styles.option} // Estilo para las opciones del selector
-          optionTextStyle={styles.optionText} // Estilo para el texto de las opciones
+          style={styles.selector}
+          selectStyle={styles.select}
+          optionStyle={styles.option}
+          optionTextStyle={styles.optionText}
         />
-          <Text style={styles.label}>Rol seleccionado: {selectedRole.label}</Text>
+        <Text style={styles.label}>Rol seleccionado: {selectedRole.label}</Text>
         <TextInput
           placeholder="Nombre de Usuario"
           style={styles.input}
@@ -189,7 +226,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   selector: {
-    // Estilo para el botón del selector
     borderColor: 'gray',
     borderRadius: 5,
     height: 40,
@@ -197,24 +233,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 10,
   },
-  option:{
-    color:'textBlack',
+  option: {
+    color: 'textBlack',
   },
   optionText: {
-    // Estilo para el texto de las opciones
     fontSize: 16,
-  },buttonContainer: {
+  },
+  buttonContainer: {
     alignItems: 'center',
-  },buttonG: {
+  },
+  buttonG: {
     width: 130,
-    backgroundColor: 'blue', // Cambia el color de fondo aquí
+    backgroundColor: 'blue',
     borderRadius: 5,
     padding: 10,
   },
   buttonTextG: {
-    color: 'white', // Cambia el color del texto aquí
+    color: 'white',
     textAlign: 'center',
   },
 });
-
-
