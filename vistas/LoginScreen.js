@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalSelector from 'react-native-modal-selector';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import IP from './../config/config';
-import Rsa from 'react-native-rsa-native';
 import base64 from 'base-64';
+import forge from 'node-forge'; // Importar la biblioteca node-forge
+
 export default function App() {
   const navigation = useNavigation();
   const [username, setUsername] = useState('');
@@ -14,10 +15,11 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState({ label: '', key: '' });
   const [publicKey, setPublicKey] = useState('');
-  const [publicKeyEncri, setPasswordEncrictado] = useState('');
+  const [publicKeyEncrypted, setPasswordEncrypted] = useState('');
+
   useEffect(() => {
     const formData2 = new FormData();
-    formData2.append('accion', 'generar_llaves_rsa');// Realizar una solicitud HTTP al servidor para obtener la clave pública RSA
+    formData2.append('accion', 'generar_llaves_rsa');
     fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
       method: 'POST',
       headers: {
@@ -28,37 +30,46 @@ export default function App() {
       .then((response) => response.text())
       .then((text) => {
         const publicKeyDecoded = base64.decode(text);
-        console.log(publicKeyDecoded);
         setPublicKey(publicKeyDecoded);
       })
       .catch((error) => {
         console.error('Error al obtener la clave pública:', error);
       });
-  }, []); // Este efecto se ejecuta solo una vez al montar el componente
+  }, []);
 
   const handleLogin = async () => {
+    console.log(publicKey);
     try {
-      
-      // Ahora puedes usar Crypto para cifrar la contraseña utilizando la clave pública RSA
       if (password && publicKey) {
-        Rsa.encrypt(password, publicKey)
-          .then(encryptedData => {
-            // El resultado cifrado está en `encryptedData`
-            console.log('Datos cifrados:', encryptedData);
-            setPasswordEncrictado(encryptedData);
-          })
-          .catch(error => {
-            console.error('Error al cifrar:', error);
+        // Crear una instancia de rsa y cargar la clave pública
+        const rsa = forge.pki.rsa;
+        const parsedPublicKey = forge.pki.publicKeyFromPem(publicKey); // Usa un nombre diferente
+        
+        const passwordBytes = forge.util.encodeUtf8(password);
+
+          // Cifrar la contraseña utilizando la clave pública
+          const encryptedPassword = parsedPublicKey.encrypt(passwordBytes, 'RSA-OAEP', {
+            md: forge.md.sha256.create(),
+            mgf1: {
+              md: forge.md.sha256.create(),
+            },
           });
+
+        // Convertir la contraseña cifrada a Base64
+        const encryptedPasswordBase64 = base64.encode(encryptedPassword);
+        setPasswordEncrypted(encryptedPasswordBase64);
+        console.log('Contraseña cifrada (Base64):', publicKeyEncrypted);
+        
       } else {
         console.error('La contraseña o la clave pública son nulas o no están definidas.');
       }
+      
       // Ahora puedes enviar 'username' y 'encryptedPassword' al servidor PHP
       const formData = new FormData();
       formData.append('accion', 'ingresar');
       formData.append('tipo', selectedRole.key);
       formData.append('user', username);
-      formData.append('password', publicKeyEncri);
+      formData.append('password', publicKeyEncrypted);
 
       fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
         method: 'POST',
@@ -69,6 +80,7 @@ export default function App() {
       })
         .then((response) => response.text())
         .then((text) => {
+          console.log(text);
           try {
             const data = JSON.parse(text);
             if (data.estatus === 1) {
