@@ -16,8 +16,6 @@ export default function App() {
   const [selectedRole, setSelectedRole] = useState({ label: '', key: '' });
   const [requestCounter, setRequestCounter] = useState(0);
 
-
-
   const handleLogin = async () => {
     setRequestCounter(requestCounter + 1);
     const formData = new FormData();
@@ -32,22 +30,22 @@ export default function App() {
     })
       .then((response) => response.text())
       .then((text) => {
-         console.log(text);
         const publicKeyDecoded = base64.decode(text);    
-        console.log(publicKeyDecoded);
     try {
       if (password && publicKeyDecoded) {
         const rsa = forge.pki.rsa;
         const parsedPublicKey = forge.pki.publicKeyFromPem(publicKeyDecoded);
-
+        const encryptedtipo = parsedPublicKey.encrypt(selectedRole.key);
+        const encrypteduser = parsedPublicKey.encrypt(username);
         const encryptedPassword = parsedPublicKey.encrypt(password);
+        const encryptedTipoBase64 = base64.encode(encryptedtipo);
+        const encryptedUserBase64 = base64.encode(encrypteduser);
         const encryptedPasswordBase64 = base64.encode(encryptedPassword);
-
 
         const formData1 = new FormData();
         formData1.append('accion', 'ingresar');
-        formData1.append('tipo', selectedRole.key);
-        formData1.append('user', username);
+        formData1.append('tipo', encryptedTipoBase64);
+        formData1.append('user', encryptedUserBase64);
         formData1.append('password', encryptedPasswordBase64);
 
         fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
@@ -59,14 +57,13 @@ export default function App() {
         })
           .then((response) => response.text())
           .then((text) => {
-            console.log(text);
             try {
               const data = JSON.parse(text);
               if (data.estatus == 1) {
                 const formData2 = new FormData();
                 formData2.append('accion', 'obtener_datos');
-                formData2.append('tipo', selectedRole.key);
-                formData2.append('user', username);
+                formData2.append('tipo', encryptedTipoBase64);
+                formData2.append('user', encryptedUserBase64);
 
                 fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
                   method: 'POST',
@@ -77,10 +74,8 @@ export default function App() {
                 })
                   .then((response) => response.text())
                   .then((sessionData) => {
-                    console.log(sessionData);
                     if (sessionData) {
                       const sessionObj = JSON.parse(sessionData);
-                      console.log(sessionObj);
                       AsyncStorage.setItem('userSession', JSON.stringify(sessionObj))
                         .then(() => {
                           Alert.alert('Éxito', data.message, [
