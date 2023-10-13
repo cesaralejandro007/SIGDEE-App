@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import IP from './../config/config';
 import base64 from 'base-64';
-import forge from 'node-forge'; // Importar la biblioteca node-forge
+import forge from 'node-forge';
 
 export default function App() {
   const navigation = useNavigation();
@@ -14,124 +14,114 @@ export default function App() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState({ label: '', key: '' });
-  const [publicKey, setPublicKey] = useState('');
-  const [publicKeyEncrypted, setPasswordEncrypted] = useState('');
+  const [requestCounter, setRequestCounter] = useState(0);
 
-  useEffect(() => {
-    const formData2 = new FormData();
-    formData2.append('accion', 'generar_llaves_rsa');
+
+
+  const handleLogin = async () => {
+    setRequestCounter(requestCounter + 1);
+    const formData = new FormData();
+    formData.append('accion', 'generar_llaves_rsa');
+    formData.append('counter', requestCounter); 
     fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      body: formData2,
+      body: formData,
     })
       .then((response) => response.text())
       .then((text) => {
-        const publicKeyDecoded = base64.decode(text);
-        setPublicKey(publicKeyDecoded);
-      })
-      .catch((error) => {
-        console.error('Error al obtener la clave pública:', error);
-      });
-  }, []);
-
-  const handleLogin = async () => {
-    console.log(publicKey);
+         console.log(text);
+        const publicKeyDecoded = base64.decode(text);    
+        console.log(publicKeyDecoded);
     try {
-      if (password && publicKey) {
-        // Crear una instancia de rsa y cargar la clave pública
+      if (password && publicKeyDecoded) {
         const rsa = forge.pki.rsa;
-        const parsedPublicKey = forge.pki.publicKeyFromPem(publicKey); // Usa un nombre diferente
-        
-        const passwordBytes = forge.util.encodeUtf8(password);
+        const parsedPublicKey = forge.pki.publicKeyFromPem(publicKeyDecoded);
 
-          // Cifrar la contraseña utilizando la clave pública
-          const encryptedPassword = parsedPublicKey.encrypt(passwordBytes, 'RSA-OAEP', {
-            md: forge.md.sha256.create(),
-            mgf1: {
-              md: forge.md.sha256.create(),
-            },
-          });
-
-        // Convertir la contraseña cifrada a Base64
+        const encryptedPassword = parsedPublicKey.encrypt(password);
         const encryptedPasswordBase64 = base64.encode(encryptedPassword);
-        setPasswordEncrypted(encryptedPasswordBase64);
-        console.log('Contraseña cifrada (Base64):', publicKeyEncrypted);
-        
+
+
+        const formData1 = new FormData();
+        formData1.append('accion', 'ingresar');
+        formData1.append('tipo', selectedRole.key);
+        formData1.append('user', username);
+        formData1.append('password', encryptedPasswordBase64);
+
+        fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          body: formData1,
+        })
+          .then((response) => response.text())
+          .then((text) => {
+            console.log(text);
+            try {
+              const data = JSON.parse(text);
+              if (data.estatus == 1) {
+                const formData2 = new FormData();
+                formData2.append('accion', 'obtener_datos');
+                formData2.append('tipo', selectedRole.key);
+                formData2.append('user', username);
+
+                fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'multipart/form-data',
+                  },
+                  body: formData2,
+                })
+                  .then((response) => response.text())
+                  .then((sessionData) => {
+                    console.log(sessionData);
+                    if (sessionData) {
+                      const sessionObj = JSON.parse(sessionData);
+                      console.log(sessionObj);
+                      AsyncStorage.setItem('userSession', JSON.stringify(sessionObj))
+                        .then(() => {
+                          Alert.alert('Éxito', data.message, [
+                            {
+                              text: 'OK',
+                              onPress: () => {
+                                navigation.navigate('Pagina Principal');
+                              },
+                            },
+                          ]);
+                        })
+                        .catch((error) => {
+                          console.error('Error al guardar la sesión en AsyncStorage:', error);
+                        });
+                    }
+                  })
+                  .catch((error) => {
+                    console.error('Error al obtener la sesión:', error);
+                  });
+              } else {
+                Alert.alert('Error', data.message);
+              }
+            } catch (error) {
+              console.error('Error al analizar la respuesta JSON:', error);
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
       } else {
         console.error('La contraseña o la clave pública son nulas o no están definidas.');
       }
-      
-      // Ahora puedes enviar 'username' y 'encryptedPassword' al servidor PHP
-      const formData = new FormData();
-      formData.append('accion', 'ingresar');
-      formData.append('tipo', selectedRole.key);
-      formData.append('user', username);
-      formData.append('password', publicKeyEncrypted);
-
-      fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-      })
-        .then((response) => response.text())
-        .then((text) => {
-          console.log(text);
-          try {
-            const data = JSON.parse(text);
-            if (data.estatus === 1) {
-              const formData1 = new FormData();
-              formData1.append('accion', 'obtener_datos');
-              formData1.append('tipo', selectedRole.key);
-              formData1.append('user', username);
-
-              fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                },
-                body: formData1,
-              })
-                .then((response) => response.text())
-                .then((sessionData) => {
-                  if (sessionData) {
-                    const sessionObj = JSON.parse(sessionData);
-                    AsyncStorage.setItem('userSession', JSON.stringify(sessionObj))
-                      .then(() => {
-                        Alert.alert('Éxito', data.message, [
-                          {
-                            text: 'OK',
-                            onPress: () => {
-                              navigation.navigate('Pagina Principal');
-                            },
-                          },
-                        ]);
-                      })
-                      .catch((error) => {
-                        console.error('Error al guardar la sesión en AsyncStorage:', error);
-                      });
-                  }
-                })
-                .catch((error) => {
-                  console.error('Error al obtener la sesión:', error);
-                });
-            } else {
-              Alert.alert('Error', data.message);
-            }
-          } catch (error) {
-            console.error('Error al analizar la respuesta JSON:', error);
-          }
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
     } catch (error) {
       console.error('Error al cifrar la contraseña:', error);
     }
+  })
+  .catch((error) => {
+    console.error('Error al obtener la clave pública:', error);
+  });
+
+
   };
 
   const toggleShowPassword = () => {
@@ -188,6 +178,7 @@ export default function App() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
