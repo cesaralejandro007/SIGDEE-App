@@ -14,7 +14,7 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Inicio de Sesion">
-        <Stack.Screen name="Aula Curso" component={AulaScreen} />
+        <Stack.Screen name="Aula" component={AulaScreen} />
         <Stack.Screen name="Inicio de Sesion" component={LoginScreen} />
         <Stack.Screen name="Pagina Principal" component={HomeScreen} />
         <Stack.Screen name="Perfil de Usuario" component={PerfilesScreen} />

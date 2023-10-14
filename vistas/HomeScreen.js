@@ -3,10 +3,39 @@ import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, IconButton } from 'react-native-paper';
 import { styles } from './../assets/css/HomeCss';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LocaleConfig } from 'react-native-calendars';
+import { Calendar } from 'react-native-calendars'; // Agrega esta línea
+
+
+LocaleConfig.locales['es'] = {
+  monthNames: [
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre'
+  ],
+  monthNamesShort: ['Ene.', 'Feb.', 'Mar.', 'Abr.', 'May.', 'Jun.', 'Jul.', 'Ago.', 'Sep.', 'Oct.', 'Nov.', 'Dic.'],
+  dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+  dayNamesShort: ['Dom.', 'Lun.', 'Mar.', 'Mié.', 'Jue.', 'Vie.', 'Sáb.'],
+  today: 'Hoy'
+};
+
+LocaleConfig.defaultLocale = 'es'; // Establece español como el idioma predeterminado
+
+
 
 const HomeScreen = ({ navigation }) => {
 
   const [nombreUsuario, setNombreUsuario] = useState(null);
+  const [selected, setSelected] = useState('');
 
   useEffect(() => {
     async function obtenerNombreUsuario() {
@@ -69,16 +98,22 @@ const HomeScreen = ({ navigation }) => {
       </Appbar.Header>
 
       <View style={styles.content}>
-        <Text>Contenido principal de la página</Text>
+      <Calendar
+        onDayPress={day => {
+          setSelected(day.dateString);
+        }}
+        markedDates={{
+          [selected]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' }
+        }}
+      />
       </View>
-
       {/* Botones con iconos */}
       <View style={styles.buttons}>
         <IconButton
           icon="office-building"
-          label="Aulas"
+          label="Aula"
           onPress={() => {
-            // Agrega aquí la lógica para mostrar notificaciones
+            navigation.navigate('Aula');
           }}
         />
         <IconButton
