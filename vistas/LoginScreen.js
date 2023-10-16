@@ -15,7 +15,7 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState({ label: '', key: '' });
   const [requestCounter, setRequestCounter] = useState(0);
-
+  const [ClavePublic, setClavePublic] = useState(0);
   const handleLogin = async () => {
     setRequestCounter(requestCounter + 1);
     const formData = new FormData();
@@ -30,11 +30,16 @@ export default function App() {
     })
       .then((response) => response.text())
       .then((text) => {
-        const publicKeyDecoded = base64.decode(text);    
+        const data = JSON.parse(text);
+        if (data.estatus == 1 || data.estatus == 2 ) {     
+          setClavePublic(base64.decode(data.clave_publica));
+        }else{
+          setClavePublic(base64.decode(data.clave_publica)); 
+        }   
     try {
-      if (password && publicKeyDecoded) {
+      if (selectedRole && username && password && ClavePublic) {
         const rsa = forge.pki.rsa;
-        const parsedPublicKey = forge.pki.publicKeyFromPem(publicKeyDecoded);
+        const parsedPublicKey = forge.pki.publicKeyFromPem(ClavePublic);
         const encryptedtipo = parsedPublicKey.encrypt(selectedRole.key);
         const encrypteduser = parsedPublicKey.encrypt(username);
         const encryptedPassword = parsedPublicKey.encrypt(password);
@@ -106,7 +111,11 @@ export default function App() {
             console.error('Error:', error);
           });
       } else {
-        console.error('La contraseña o la clave pública son nulas o no están definidas.');
+        Alert.alert('Error', 'Complete los campos solicitados.', [
+          {
+            text: 'OK',
+          },
+        ]);
       }
     } catch (error) {
       console.error('Error al cifrar la contraseña:', error);
@@ -115,8 +124,6 @@ export default function App() {
   .catch((error) => {
     console.error('Error al obtener la clave pública:', error);
   });
-
-
   };
 
   const toggleShowPassword = () => {
