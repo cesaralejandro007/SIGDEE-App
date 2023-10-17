@@ -15,12 +15,14 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState({ label: '', key: '' });
   const [requestCounter, setRequestCounter] = useState(0);
-  const [ClavePublic, setClavePublic] = useState(0);
-  const handleLogin = async () => {
+  const [ClavePublic, setClavePublic] = useState(null); // Inicialízalo como null
+
+  useEffect(() => {
     setRequestCounter(requestCounter + 1);
     const formData = new FormData();
     formData.append('accion', 'generar_llaves_rsa');
-    formData.append('counter', requestCounter); 
+    formData.append('counter', requestCounter);
+  
     fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
       method: 'POST',
       headers: {
@@ -28,14 +30,27 @@ export default function App() {
       },
       body: formData,
     })
-      .then((response) => response.text())
-      .then((text) => {
-        const data = JSON.parse(text);
-        if (data.estatus == 1 || data.estatus == 2 ) {     
-          setClavePublic(base64.decode(data.clave_publica));
-        }else{
-          setClavePublic(base64.decode(data.clave_publica)); 
-        }   
+      .then((response) => response.json()) // Espera una respuesta JSON
+      .then((data) => {
+        let publicKey;
+        try {
+          // Intenta importar la variable publicKey
+          ({ publicKey } = require('./../RSA/public'));
+          setClavePublic(publicKey);
+        } catch (error) {
+          // Maneja el error si el import no existe
+          console.error('Error al importar publicKey:', error);
+        }
+          console.log(data.message);
+      })
+      .catch((error) => {
+        console.error('Error al generar claves RSA:', error);
+      });
+  }, []);
+
+  
+  const handleLogin = async () => {
+
     try {
       if (selectedRole && username && password && ClavePublic) {
         const rsa = forge.pki.rsa;
@@ -120,10 +135,6 @@ export default function App() {
     } catch (error) {
       console.error('Error al cifrar la contraseña:', error);
     }
-  })
-  .catch((error) => {
-    console.error('Error al obtener la clave pública:', error);
-  });
   };
 
   const toggleShowPassword = () => {
@@ -139,10 +150,10 @@ export default function App() {
             { label: 'Super Usuario', key: 'Super Usuario' },
             { label: 'Administrador', key: 'Administrador' },
             { label: 'Docente', key: 'Docente' },
-            { label: 'Estudiante', key: 'Estudiante' }
+            { label: 'Estudiante', key: 'Estudiante' },
           ]}
           initValue={`Selecciona un rol`}
-          onChange={item => setSelectedRole(item)}
+          onChange={(item) => setSelectedRole(item)}
           style={styles.selector}
           selectStyle={styles.select}
           optionStyle={styles.option}
@@ -153,7 +164,7 @@ export default function App() {
           placeholder="Nombre de Usuario"
           style={styles.input}
           value={username}
-          onChangeText={text => setUsername(text)}
+          onChangeText={(text) => setUsername(text)}
         />
         <View style={styles.passwordContainer}>
           <TextInput
@@ -161,7 +172,7 @@ export default function App() {
             style={styles.passwordInput}
             secureTextEntry={!showPassword}
             value={password}
-            onChangeText={text => setPassword(text)}
+            onChangeText={(text) => setPassword(text)}
           />
           <Icon
             name={showPassword ? 'eye' : 'eye-slash'}
@@ -180,7 +191,6 @@ export default function App() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

@@ -120,7 +120,7 @@ const ProfileScreen = () => {
         Alert.alert('Error', data.message);
       }
     } catch (error) {
-      console.error('Error al guardar los cambios:', error);
+      console.error('Error al guardar los cambios:', error.message);
       Alert.alert(
         'Error',
         'No se pudieron guardar los cambios. Por favor, inténtelo de nuevo más tarde.'
