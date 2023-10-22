@@ -1,24 +1,30 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalSelector from 'react-native-modal-selector';
-/**
- * Componente de la vista de inicio de sesión.
- * @param {object} props - Propiedades pasadas desde el componente principal.
- */
-function LoginView(props) {
- 
-  const {
-    selectedRole,
-    username,
-    password,
-    showPassword,
-    handleLogin,
-    toggleShowPassword,
-    onRoleChange,
-    onUsernameChange,
-    onPasswordChange,
-  } = props;
+import { useNavigation } from '@react-navigation/native';
+import ModelLogin from './modelo/ModelLogin';
+
+export default function App() {
+  const navigation = useNavigation();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const Login = new ModelLogin({ navigation });
+  
+  useEffect(() => {
+    Login.generateRSAKeys();
+  }, []);
+
+  const handleLogin = async () => {
+    Login.login(username, password, selectedRole);
+  }
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <View style={styles.container}>
@@ -31,19 +37,19 @@ function LoginView(props) {
             { label: 'Docente', key: 'Docente' },
             { label: 'Estudiante', key: 'Estudiante' },
           ]}
-          initValue="Selecciona un rol"
-          onChange={onRoleChange}
+          initValue={`Selecciona un rol`}
+          onChange={(item) => setSelectedRole(item)}
           style={styles.selector}
           selectStyle={styles.select}
           optionStyle={styles.option}
           optionTextStyle={styles.optionText}
         />
-        <Text style={styles.label}>Rol seleccionado: {selectedRole && selectedRole.label}</Text>
+        <Text style={styles.label}>Rol seleccionado: {selectedRole ? selectedRole.label : ''}</Text>
         <TextInput
           placeholder="Nombre de Usuario"
           style={styles.input}
           value={username}
-          onChangeText={onUsernameChange}
+          onChangeText={(text) => setUsername(text)}
         />
         <View style={styles.passwordContainer}>
           <TextInput
@@ -51,7 +57,7 @@ function LoginView(props) {
             style={styles.passwordInput}
             secureTextEntry={!showPassword}
             value={password}
-            onChangeText={onPasswordChange}
+            onChangeText={(text) => setPassword(text)}
           />
           <Icon
             name={showPassword ? 'eye' : 'eye-slash'}
@@ -70,8 +76,6 @@ function LoginView(props) {
     </View>
   );
 }
-
-export default LoginView;
 
 const styles = StyleSheet.create({
   container: {

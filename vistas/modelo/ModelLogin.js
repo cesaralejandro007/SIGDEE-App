@@ -1,71 +1,64 @@
-import React, { Component } from 'react';
-import LoginView from './../../vistas/LoginView'; // Importa la vista
+import {Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import forge from 'node-forge';
 import base64 from 'base-64';
-import IP from './../../config/config';
+import IP from '../../config/config';
 
-class LoginModel extends Component {
-    constructor(props) {
-        super(props);
-      
-        this.state = {
-          username: '',
-          password: '',
-          showPassword: false,
-          selectedRole: { label: 'Selecciona un rol', key: '' }, // Valor por defecto
-          requestCounter: 0,
-          ClavePublic: null,
-        };
+class ModelLogin {
+  constructor({ navigation }) { // Recibe la propiedad navigation
+    this.navigation = navigation; // Asigna la propiedad navigation a la instancia del modelo
+    this.publicKey = null;
+    this.requestCounter = 0;
+  }
+  async generateRSAKeys() {
+    this.requestCounter++;
+    const formData = new FormData();
+    formData.append('accion', 'generar_llaves_rsa');
+    formData.append('counter', this.requestCounter);
+
+    try {
+      const response = await fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (data.publicKey) {
+        this.publicKey = data.publicKey;
+        console.log(data.message);
       }
-      
-  // Maneja el cambio de rol seleccionado
-  onRoleChange = (item) => {
-    this.setState({ selectedRole: item });
-  }
-
-  // Maneja el cambio en el campo de nombre de usuario
-  onUsernameChange = (text) => {
-    this.setState({ username: text });
-  }
-
-  // Maneja el cambio en el campo de contraseña
-  onPasswordChange = (text) => {
-    this.setState({ password: text });
-  }
-
-  // Muestra u oculta la contraseña
-  toggleShowPassword = () => {
-    this.setState({ showPassword: !this.state.showPassword });
-  }
-
-  // Maneja el proceso de inicio de sesión
-handleLogin = async () => {
-    let publicKey;
-    try {
-      ({ publicKey } = require('./../../RSA/public'));
-      this.setState({ ClavePublic: publicKey });
     } catch (error) {
-      console.error('Error al importar publicKey:', error);
+      console.error('Error al generar claves RSA:', error);
     }
+  }
+
+  async login(username, password ,selectedRole) {
     try {
-      const { selectedRole, username, password, ClavePublic } = this.state;
-      if (selectedRole && username && password && ClavePublic) {
+      publicKey = require('../../RSA/public');
+    } catch (error) {
+      console.log('La clave publica no existe todavia');
+    }
+
+    try {
+      if (selectedRole && username && password && publicKey) {
         const rsa = forge.pki.rsa;
-        const parsedPublicKey = forge.pki.publicKeyFromPem(ClavePublic);
+        const parsedPublicKey = forge.pki.publicKeyFromPem(publicKey.publicKey);
         const encryptedtipo = parsedPublicKey.encrypt(selectedRole.key);
         const encrypteduser = parsedPublicKey.encrypt(username);
         const encryptedPassword = parsedPublicKey.encrypt(password);
         const encryptedTipoBase64 = base64.encode(encryptedtipo);
         const encryptedUserBase64 = base64.encode(encrypteduser);
         const encryptedPasswordBase64 = base64.encode(encryptedPassword);
-  
+
         const formData1 = new FormData();
         formData1.append('accion', 'ingresar');
         formData1.append('tipo', encryptedTipoBase64);
         formData1.append('user', encryptedUserBase64);
         formData1.append('password', encryptedPasswordBase64);
-  
+
         fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
           method: 'POST',
           headers: {
@@ -75,7 +68,6 @@ handleLogin = async () => {
         })
           .then((response) => response.text())
           .then((text) => {
-            console.log(text);
             try {
               const data = JSON.parse(text);
               if (data.estatus == 1) {
@@ -83,7 +75,7 @@ handleLogin = async () => {
                 formData2.append('accion', 'obtener_datos');
                 formData2.append('tipo', encryptedTipoBase64);
                 formData2.append('user', encryptedUserBase64);
-  
+
                 fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
                   method: 'POST',
                   headers: {
@@ -101,7 +93,7 @@ handleLogin = async () => {
                             {
                               text: 'OK',
                               onPress: () => {
-                                this.props.navigation.navigate('Pagina Principal');
+                                this.navigation.navigate('Pagina Principal');
                               },
                             },
                           ]);
@@ -134,25 +126,7 @@ handleLogin = async () => {
     } catch (error) {
       console.error('Error al cifrar la contraseña:', error);
     }
-  };
-  
-
-  render() {
-      const selectedRole = this.state.selectedRole || { label: '', key: '' };
-    return (
-      <LoginView
-        selectedRole={selectedRole}
-        username={this.state.username}
-        password={this.state.password}
-        showPassword={this.state.showPassword}
-        handleLogin={this.handleLogin}
-        toggleShowPassword={this.toggleShowPassword}
-        onRoleChange={this.onRoleChange}
-        onUsernameChange={this.onUsernameChange}
-        onPasswordChange={this.onPasswordChange}
-      />
-    );
   }
 }
 
-export default LoginModel;
+export default ModelLogin;
