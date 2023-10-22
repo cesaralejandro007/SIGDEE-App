@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ModelProfile from './../modelo/ModelProfile';
 
 const PerfilesView = () => {
@@ -17,8 +17,14 @@ const PerfilesView = () => {
       if (data) {
         setUserData(data);
       } else {
-        // Salir del sistema
-        navigation.navigate('Inicio de Sesion');
+        AsyncStorage.clear()
+        .then(() => {
+          // Navegar a la pantalla de inicio de sesión
+          navigation.navigate('Inicio de Sesion');
+        })
+        .catch((error) => {
+          console.error('Error al cerrar sesión:', error);
+        });
       }
     }
 

@@ -80,8 +80,14 @@ const HomeScreen = ({ navigation }) => {
         {
           text: 'Salir',
           onPress: () => {
-            // Aquí puedes agregar cualquier lógica adicional antes de salir
-            navigation.navigate('Inicio de Sesion');
+            AsyncStorage.clear()
+            .then(() => {
+              // Navegar a la pantalla de inicio de sesión
+              navigation.navigate('Inicio de Sesion');
+            })
+            .catch((error) => {
+              console.error('Error al cerrar sesión:', error);
+            });
           },
         },
       ],

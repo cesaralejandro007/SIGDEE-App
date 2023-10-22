@@ -14,13 +14,21 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
 
   const Login = new ModelLogin({ navigation });
-  
+
+  const resetFields = () => {
+    setUsername('');
+    setPassword('');
+    setSelectedRole(null);
+    setShowPassword(false);
+  };
+    
   useEffect(() => {
     Login.generateRSAKeys();
   }, []);
 
   const handleLogin = async () => {
     Login.login(username, password, selectedRole);
+    resetFields();
   }
 
   const toggleShowPassword = () => {
