@@ -2,7 +2,7 @@ import {Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import forge from 'node-forge';
 import base64 from 'base-64';
-import IP from '../../config/config';
+import IP from './../config/config';
 
 class ModelLogin {
   constructor({ navigation }) { // Recibe la propiedad navigation
@@ -37,7 +37,7 @@ class ModelLogin {
 
   async login(username, password ,selectedRole) {
     try {
-      publicKey = require('../../RSA/public');
+      publicKey = require('../RSA/public');
     } catch (error) {
       console.log('La clave publica no existe todavia');
     }

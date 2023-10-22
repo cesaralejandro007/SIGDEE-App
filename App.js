@@ -6,7 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AulaScreen from './vistas/AulaScreen';
 import LoginView from './vistas/LoginView';
 import HomeScreen from './vistas/HomeScreen';
-import PerfilesScreen from './vistas/PerfilesScreen';
+import PerfilesView from './vistas/PerfilesView';
 
 const Stack = createStackNavigator();
 
@@ -17,7 +17,7 @@ function App() {
         <Stack.Screen name="Aula" component={AulaScreen} />
         <Stack.Screen name="Inicio de Sesion" component={LoginView} />
         <Stack.Screen name="Pagina Principal" component={HomeScreen} />
-        <Stack.Screen name="Perfil de Usuario" component={PerfilesScreen} />
+        <Stack.Screen name="Perfil de Usuario" component={PerfilesView} />
       </Stack.Navigator>
     </NavigationContainer>
   );

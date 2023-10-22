@@ -3,7 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet} from 'react-native
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalSelector from 'react-native-modal-selector';
 import { useNavigation } from '@react-navigation/native';
-import ModelLogin from './modelo/ModelLogin';
+
+import ModelLogin from './../modelo/ModelLogin';
 
 export default function App() {
   const navigation = useNavigation();
