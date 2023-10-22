@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import IP from './../config/config';
 
 class ModelProfile {
-  async getUserData() {
+  async getDatosUsuario() {
     const session = await AsyncStorage.getItem('userSession');
 
     if (session !== null) {
@@ -22,7 +22,7 @@ class ModelProfile {
     }
   }
 
-  async updateUserProfile(id, editedEmail, editedTelefono) {
+  async actualizarPerfil(id, editedEmail, editedTelefono) {
     const formData = new FormData();
     formData.append('accion', 'modificarperfil');
     formData.append('id', id);

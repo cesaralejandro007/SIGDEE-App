@@ -23,11 +23,11 @@ export default function App() {
   };
     
   useEffect(() => {
-    Login.generateRSAKeys();
+    Login.generarClavePublica();
   }, []);
 
-  const handleLogin = async () => {
-    Login.login(username, password, selectedRole);
+  const onClicKLogin = async () => {
+    Login.IniciarSesion(username, password, selectedRole);
     resetFields();
   }
 
@@ -77,7 +77,7 @@ export default function App() {
           />
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={handleLogin} style={styles.buttonG}>
+          <TouchableOpacity onPress={onClicKLogin} style={styles.buttonG}>
             <Text style={styles.buttonTextG}>Iniciar Sesión</Text>
           </TouchableOpacity>
         </View>

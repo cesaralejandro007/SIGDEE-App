@@ -10,7 +10,7 @@ class ModelLogin {
     this.publicKey = null;
     this.requestCounter = 0;
   }
-  async generateRSAKeys() {
+  async generarClavePublica() {
     this.requestCounter++;
     const formData = new FormData();
     formData.append('accion', 'generar_llaves_rsa');
@@ -35,7 +35,7 @@ class ModelLogin {
     }
   }
 
-  async login(username, password ,selectedRole) {
+  async IniciarSesion(username, password ,selectedRole) {
     try {
       publicKey = require('../RSA/public');
     } catch (error) {

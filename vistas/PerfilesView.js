@@ -8,12 +8,12 @@ const PerfilesView = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [editedEmail, setEditedEmail] = useState('');
   const [editedTelefono, setEditedTelefono] = useState('');
-  const modelProfile = new ModelProfile();
+  const Perfil = new ModelProfile();
 
   useEffect(() => {
     async function obtenerDatosUsuario() {
 
-      const data = await modelProfile.getUserData();
+      const data = await Perfil.getDatosUsuario();
       if (data) {
         setUserData(data);
       } else {
@@ -33,7 +33,7 @@ const PerfilesView = () => {
 
   const guardarCambios = async () => {
     const { id } = userData;
-    const result = await modelProfile.updateUserProfile(id, editedEmail, editedTelefono);
+    const result = await Perfil.actualizarPerfil(id, editedEmail, editedTelefono);
     if (result.success) {
       const newData = { ...userData, correo: editedEmail, telefono: editedTelefono };
       setUserData(newData);
