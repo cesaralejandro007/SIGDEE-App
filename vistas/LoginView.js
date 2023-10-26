@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
+import { ImageBackground,View, Text, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalSelector from 'react-native-modal-selector';
 import { useNavigation } from '@react-navigation/native';
@@ -36,6 +36,10 @@ export default function App() {
   };
 
   return (
+    <ImageBackground
+    source={require('../assets/uptaeb.jpeg')}
+    style={styles.container}
+  >
     <View style={styles.container}>
       <View style={styles.overlay}>
         <Text style={styles.header}>SIGDEE</Text>
@@ -83,12 +87,13 @@ export default function App() {
         </View>
       </View>
     </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#0D47AD',
+    backgroundColor: '#0D4AD',
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
