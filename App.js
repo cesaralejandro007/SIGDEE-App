@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 // Importa tus componentes de pantalla aquí
 import AulaScreen from './vistas/AulaScreen';
+import ReporteScreen from './vistas/ReporteScreen';
 import LoginView from './vistas/LoginView';
 import HomeScreen from './vistas/HomeScreen';
 import PerfilesView from './vistas/PerfilesView';
@@ -15,6 +16,7 @@ function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Inicio de Sesion">
         <Stack.Screen name="Aula" component={AulaScreen} />
+        <Stack.Screen name="Notas de los estudiantes" component={ReporteScreen} />
         <Stack.Screen name="Inicio de Sesion" component={LoginView} />
         <Stack.Screen name="Pagina Principal" component={HomeScreen} />
         <Stack.Screen name="Perfil de Usuario" component={PerfilesView} />

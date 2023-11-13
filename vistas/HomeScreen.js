@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, IconButton } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { styles } from './../assets/css/HomeCss';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LocaleConfig } from 'react-native-calendars';
@@ -99,7 +100,6 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Barra de Aplicaciones (AppBar) */}
       <Appbar.Header style={styles.Header1}>
-        <Appbar.Action color="white" icon="menu" onPress={() => console.log('Abrir menú')} />
         <Appbar.Content titleStyle={{ color: 'white' }}  title={`¡Bienvenido/a de nuevo, ${nombreUsuario ? nombreUsuario : ''} 👋`}/>
       </Appbar.Header>
 
@@ -120,6 +120,13 @@ const HomeScreen = ({ navigation }) => {
           label="Aula"
           onPress={() => {
             navigation.navigate('Aula');
+          }}
+        />
+        <IconButton
+          icon="chart-box"
+          label="Notas Estudiantes"
+          onPress={() => {
+            navigation.navigate('Notas de los estudiantes');
           }}
         />
         <IconButton

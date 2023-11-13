@@ -11,29 +11,35 @@ class ModelLogin {
     this.requestCounter = 0;
   }
 
-  async generarClavePublica() {
+  generarClavePublica() {
     this.requestCounter++;
     const formData = new FormData();
     formData.append('accion', 'generar_llaves_rsa');
     formData.append('counter', this.requestCounter);
-
-    try {
-      const response = await fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
+  
+    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.status === 1) {
+          console.log(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error al generar claves RSA:', error);
       });
-      const data = await response.json();
-
-      if (data.status == 1) {
-        console.log(data.message);
-      }
-    } catch (error) {
-      console.error('Error al generar claves RSA:', error);
-    }
   }
+  
 
   async obtenerDatosDeSesion(encryptedTipoBase64, encryptedUserBase64) {
     const formData2 = new FormData();
