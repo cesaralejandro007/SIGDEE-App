@@ -5,18 +5,18 @@ import { View, StyleSheet } from 'react-native';
 import ModalSelector from 'react-native-modal-selector';
 import { Text } from 'react-native-elements';
 import { Table, Row, Rows } from 'react-native-table-component';
-import IP from './../config/config';
 import ModelReporte from './../modelo/ModelReporte';
 
+const Notas = new ModelReporte();
+
 const ReporteScreen = ({ navigation }) => {
-  const [model, setModel] = useState(new ModelReporte());
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchData = async () => {
     try {
       // Esperar a que se carguen las áreas
       setIsLoading(true);
-      await model.fetchAreasEmprendimiento();
+      await Notas.fetchAreasEmprendimiento();
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -26,15 +26,15 @@ const ReporteScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchData();
-  }, [model]);
+  }, [Notas]);
 
   const handleAreaChange = async (option) => {
     try {
-      model.setSelectedArea(option);
+      Notas.setSelectedArea(option);
       setIsLoading(true);
       
       // Cargar emprendimientos después de seleccionar un área
-      await model.fetchEmprendimientos(option);
+      await Notas.fetchEmprendimientos(option);
     } catch (error) {
       console.error(error);
     } finally {
@@ -44,11 +44,11 @@ const ReporteScreen = ({ navigation }) => {
 
   const handleEmprendimientoChange = async (option) => {
     try {
-      model.setSelectedEmprendimiento(option);
+      Notas.setSelectedEmprendimiento(option);
       setIsLoading(true);
 
       // Cargar cursos después de seleccionar un emprendimiento
-      await model.fetchCursos(option);
+      await Notas.fetchCursos(option);
     } catch (error) {
       console.error(error);
     } finally {
@@ -58,11 +58,11 @@ const ReporteScreen = ({ navigation }) => {
 
   const handleCursoChange = async (option) => {
     try {
-      model.setSelectedCurso(option);
+      Notas.setSelectedCurso(option);
       setIsLoading(true);
 
       // Cargar notas después de seleccionar un curso
-      await model.fetchNotasAulas(option);
+      await Notas.fetchNotasAulas(option);
     } catch (error) {
       console.error(error);
     } finally {
@@ -75,43 +75,43 @@ const ReporteScreen = ({ navigation }) => {
       <View style={styles.pickerContainer}>
         <Text style={styles.label}>Área de Emprendimiento:</Text>
         <ModalSelector
-          data={model.areasEmprendimiento.map(area => ({ key: area.value, label: area.text }))}
-          initValue={model.selectedAreaText}
+          data={Notas.areasEmprendimiento.map(area => ({ key: area.value, label: area.text }))}
+          initValue={Notas.selectedAreaText}
           onChange={handleAreaChange}
           disabled={isLoading}
         />
       </View>
 
-      {model.selectedArea && (
+      {Notas.selectedArea && (
         <View style={styles.pickerContainer}>
           <Text style={styles.label}>Emprendimiento:</Text>
           <ModalSelector
-            data={model.emprendimientos.map(emprendimiento => ({ key: emprendimiento.value, label: emprendimiento.text }))}
-            initValue={model.selectedEmprendimientoText}
+            data={Notas.emprendimientos.map(emprendimiento => ({ key: emprendimiento.value, label: emprendimiento.text }))}
+            initValue={Notas.selectedEmprendimientoText}
             onChange={handleEmprendimientoChange}
             disabled={isLoading}
           />
         </View>
       )}
 
-{model.selectedEmprendimiento && (
+{Notas.selectedEmprendimiento && (
         <View style={styles.pickerContainer}>
           <Text style={styles.label}>Curso:</Text>
           <ModalSelector
-            data={model.cursos.map(curso => ({ key: curso.value, label: curso.text }))}
-            initValue={model.selectedCursoText}
+            data={Notas.cursos.map(curso => ({ key: curso.value, label: curso.text }))}
+            initValue={Notas.selectedCursoText}
             onChange={handleCursoChange}
             disabled={isLoading}
           />
         </View>
       )}
 
-{model.tableData.length > 0 && (
+{Notas.tableData.length > 0 && (
   <View style={styles.tableContainer}>
     <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
-      <Row data={model.tableHead} style={styles.head} textStyle={styles.text} />
+      <Row data={Notas.tableHead} style={styles.head} textStyle={styles.text} />
       <Rows
-        data={model.tableData}
+        data={Notas.tableData}
         textStyle={styles.text}
         style={styles.row}
         render={(rowData, index) => (

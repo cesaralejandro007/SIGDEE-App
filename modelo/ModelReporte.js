@@ -1,5 +1,3 @@
-// ModelReporte.js
-
 import { Alert } from 'react-native';
 import IP from './../config/config';
 
@@ -18,81 +16,88 @@ class ModelReporte {
     this.selectedCursoText = "Selecciona una opción";
   }
 
-  async fetchAreasEmprendimiento() {
-    try {
-      const formData1 = new FormData();
-      formData1.append('accion', 'listadoareas_app');
-      const response = await fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData1,
-      });
-      const data = await response.json();
+  fetchAreasEmprendimiento() {
+    const formData1 = new FormData();
+    formData1.append('accion', 'listadoareas_app');
+    
+    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData1,
+    })
+    .then(response => response.json())
+    .then(data => {
       const areas = data.datos || [];
       this.setAreasEmprendimiento(areas);
-    } catch (error) {
+    })
+    .catch(error => {
       console.error('Error fetching areas:', error);
-    }
+    });
   }
 
-  async fetchEmprendimientos(datos) {
-    try {
-      const formData2 = new FormData();
-      formData2.append('accion', 'listadoemprendimientos_app');
-      formData2.append('area', datos.key);
-      const response = await fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData2,
-      });
-      const data = await response.json();
+  fetchEmprendimientos(datos) {
+    const formData2 = new FormData();
+    formData2.append('accion', 'listadoemprendimientos_app');
+    formData2.append('area', datos.key);
+
+    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData2,
+    })
+    .then(response => response.json())
+    .then(data => {
       this.setEmprendimientos(data.datos);
       return data.datos;
-    } catch (error) {
+    })
+    .catch(error => {
       console.error('Error fetching emprendimientos:', error);
       throw error;
-    }
+    });
   }
 
-  async fetchCursos(datos) {
-    try {
-      const formData3 = new FormData();
-      formData3.append('accion', 'listadoaulas_app');
-      formData3.append('area', this.selectedArea);
-      formData3.append('emprendimiento', datos.key);
-      const response = await fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData3,
-      });
-      const data = await response.json();
+  fetchCursos(datos) {
+    const formData3 = new FormData();
+    formData3.append('accion', 'listadoaulas_app');
+    formData3.append('area', this.selectedArea);
+    formData3.append('emprendimiento', datos.key);
+
+    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData3,
+    })
+    .then(response => response.json())
+    .then(data => {
       this.setCursos(data.datos);
       return data.datos;
-    } catch (error) {
+    })
+    .catch(error => {
       console.error('Error fetching cursos:', error);
       throw error;
-    }
+    });
   }
 
-  async fetchNotasAulas(datos) {
-    try {
-      const formData4 = new FormData();
-      formData4.append('accion', 'consulta_aprobados_reprobados');
-      formData4.append('aula', datos.key);
-      const response = await fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData4,
-      });
-      const data = await response.json();
+  fetchNotasAulas(datos) {
+    const formData4 = new FormData();
+    formData4.append('accion', 'consulta_aprobados_reprobados');
+    formData4.append('aula', datos.key);
+
+    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData4,
+    })
+    .then(response => response.json())
+    .then(data => {
       const head = data.head;
       this.setTableHead(head);
 
@@ -106,9 +111,10 @@ class ModelReporte {
         ]);
         this.setTableData(tableData);
       }
-    } catch (error) {
+    })
+    .catch(error => {
       console.error('Error fetching notas:', error);
-    }
+    });
   }
 
   setAreasEmprendimiento(data) {
