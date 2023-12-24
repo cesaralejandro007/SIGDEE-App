@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
-import { Appbar, Button, IconButton } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { styles } from './../assets/css/HomeCss';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Appbar, IconButton } from 'react-native-paper';
+import { Calendar } from 'react-native-calendars';
 import { LocaleConfig } from 'react-native-calendars';
-import { Calendar } from 'react-native-calendars'; // Agrega esta línea
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 LocaleConfig.locales['es'] = {
   monthNames: [
@@ -21,20 +18,17 @@ LocaleConfig.locales['es'] = {
     'Septiembre',
     'Octubre',
     'Noviembre',
-    'Diciembre'
+    'Diciembre',
   ],
   monthNamesShort: ['Ene.', 'Feb.', 'Mar.', 'Abr.', 'May.', 'Jun.', 'Jul.', 'Ago.', 'Sep.', 'Oct.', 'Nov.', 'Dic.'],
   dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
   dayNamesShort: ['Dom.', 'Lun.', 'Mar.', 'Mié.', 'Jue.', 'Vie.', 'Sáb.'],
-  today: 'Hoy'
+  today: 'Hoy',
 };
 
-LocaleConfig.defaultLocale = 'es'; // Establece español como el idioma predeterminado
-
-
+LocaleConfig.defaultLocale = 'es';
 
 const HomeScreen = ({ navigation }) => {
-
   const [nombreUsuario, setNombreUsuario] = useState(null);
   const [selected, setSelected] = useState('');
 
@@ -52,22 +46,19 @@ const HomeScreen = ({ navigation }) => {
           const arreglo1 = dato[0].apellido.split(' ');
           const primerValorA = arreglo1[0];
 
-          const nombre_apellido = primerValorN + " " + primerValorA;
+          const nombre_apellido = primerValorN + ' ' + primerValorA;
 
           setNombreUsuario(nombre_apellido);
         } else {
-          // Salir del sistema
-            navigation.navigate('Inicio de Sesion');
+          navigation.navigate('Inicio de Sesion');
         }
       } catch (error) {
-        // Maneja cualquier error que pueda ocurrir durante la operación AsyncStorage
         console.error('Error al obtener el dato compartido:', error);
       }
     }
 
     obtenerNombreUsuario();
   }, []);
-
 
   const confirmExit = () => {
     Alert.alert(
@@ -82,13 +73,12 @@ const HomeScreen = ({ navigation }) => {
           text: 'Salir',
           onPress: () => {
             AsyncStorage.clear()
-            .then(() => {
-              // Navegar a la pantalla de inicio de sesión
-              navigation.navigate('Inicio de Sesion');
-            })
-            .catch((error) => {
-              console.error('Error al cerrar sesión:', error);
-            });
+              .then(() => {
+                navigation.navigate('Inicio de Sesion');
+              })
+              .catch((error) => {
+                console.error('Error al cerrar sesión:', error);
+              });
           },
         },
       ],
@@ -96,61 +86,83 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
+  const tableData = [['Reporte Area Emprend..', 'Notas Estudiantes', 'Perfil', 'Notificaciones', 'Salir']];
+
   return (
     <View style={styles.container}>
-      {/* Barra de Aplicaciones (AppBar) */}
       <Appbar.Header style={styles.Header1}>
-        <Appbar.Content titleStyle={{ color: 'white' }}  title={`¡Bienvenido/a de nuevo, ${nombreUsuario ? nombreUsuario : ''} 👋`}/>
+        <Appbar.Content titleStyle={{ color: 'white' }} title={`¡Bienvenido/a de nuevo, ${nombreUsuario ? nombreUsuario : ''} 👋`} />
       </Appbar.Header>
 
       <View style={styles.content}>
-      <Calendar
-        onDayPress={day => {
-          setSelected(day.dateString);
-        }}
-        markedDates={{
-          [selected]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' }
-        }}
-      />
+        <Calendar
+          onDayPress={(day) => {
+            setSelected(day.dateString);
+          }}
+          markedDates={{
+            [selected]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' },
+          }}
+        />
       </View>
-      {/* Botones con iconos */}
+
       <View style={styles.buttons}>
-        <IconButton
-          icon="office-building"
-          label="Aula"
-          onPress={() => {
-            navigation.navigate('Aula');
-          }}
-        />
-        <IconButton
-          icon="chart-box"
-          label="Notas Estudiantes"
-          onPress={() => {
-            navigation.navigate('Notas de los estudiantes');
-          }}
-        />
-        <IconButton
-          icon="account"
-          label="Perfil"
-          onPress={() => {
-            navigation.navigate('Perfil de Usuario');
-          }}
-        />
-        <IconButton
-          icon="bell"
-          label="Notificaciones"
-          onPress={() => {
-            // Agrega aquí la lógica para mostrar notificaciones
-          }}
-        />
-        <IconButton
-          icon="exit-to-app"
-          label="Salir"
-          onPress={confirmExit} // Llama a la función confirmExit al presionar el botón de salida
-        />
+        {tableData[0].map((data, index) => (
+          <View style={styles.iconButton} key={index}>
+            <IconButton
+              icon={data === 'Reporte Area Emprend..' ? 'chart-box' : data === 'Notas Estudiantes' ? 'chart-box' : data === 'Perfil' ? 'account' : data === 'Notificaciones' ? 'bell' : 'exit-to-app'}
+              onPress={() => {
+                switch (data) {
+                  case 'Reporte Area Emprend..':
+                    navigation.navigate('Reporte de Estudiantes por Emprendimiento');
+                    break;
+                  case 'Notas Estudiantes':
+                    navigation.navigate('Notas de los estudiantes');
+                    break;
+                  case 'Perfil':
+                    navigation.navigate('Perfil de Usuario');
+                    break;
+                  case 'Notificaciones':
+                    // Lógica para mostrar notificaciones
+                    break;
+                  case 'Salir':
+                    confirmExit();
+                    break;
+                  default:
+                    break;
+                }
+              }}
+            />
+            <Text style={styles.label}>{data}</Text>
+          </View>
+        ))}
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  Header1: {
+    backgroundColor: '#0D47AD',
+  },
+  content: {
+    margin: 20,
+  },
+  buttons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  iconButton: {
+    alignItems: 'center',
+    margin: 10,
+  },
+  label: {
+    marginTop: 5,
+  },
+});
 
 export default HomeScreen;
