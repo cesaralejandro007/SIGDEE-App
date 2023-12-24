@@ -1,10 +1,6 @@
-// ReporteScreen.js
-
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView, Text } from 'react-native';
 import ModalSelector from 'react-native-modal-selector';
-import { Text } from 'react-native-elements';
-import { Table, Row, Rows } from 'react-native-table-component';
 import ModelReporte from './../modelo/ModelReporte';
 
 const Notas = new ModelReporte();
@@ -14,7 +10,6 @@ const ReporteScreen = ({ navigation }) => {
 
   const fetchData = async () => {
     try {
-      // Esperar a que se carguen las áreas
       setIsLoading(true);
       await Notas.fetchAreasEmprendimiento();
     } catch (error) {
@@ -30,10 +25,8 @@ const ReporteScreen = ({ navigation }) => {
 
   const handleAreaChange = async (option) => {
     try {
-      Notas.setSelectedArea(option);
       setIsLoading(true);
-      
-      // Cargar emprendimientos después de seleccionar un área
+      Notas.setSelectedArea(option);
       await Notas.fetchEmprendimientos(option);
     } catch (error) {
       console.error(error);
@@ -44,10 +37,8 @@ const ReporteScreen = ({ navigation }) => {
 
   const handleEmprendimientoChange = async (option) => {
     try {
-      Notas.setSelectedEmprendimiento(option);
       setIsLoading(true);
-
-      // Cargar cursos después de seleccionar un emprendimiento
+      Notas.setSelectedEmprendimiento(option);
       await Notas.fetchCursos(option);
     } catch (error) {
       console.error(error);
@@ -58,10 +49,8 @@ const ReporteScreen = ({ navigation }) => {
 
   const handleCursoChange = async (option) => {
     try {
-      Notas.setSelectedCurso(option);
       setIsLoading(true);
-
-      // Cargar notas después de seleccionar un curso
+      Notas.setSelectedCurso(option);
       await Notas.fetchNotasAulas(option);
     } catch (error) {
       console.error(error);
@@ -94,7 +83,7 @@ const ReporteScreen = ({ navigation }) => {
         </View>
       )}
 
-{Notas.selectedEmprendimiento && (
+      {Notas.selectedEmprendimiento && (
         <View style={styles.pickerContainer}>
           <Text style={styles.label}>Curso:</Text>
           <ModalSelector
@@ -106,26 +95,31 @@ const ReporteScreen = ({ navigation }) => {
         </View>
       )}
 
-{Notas.tableData.length > 0 && (
-  <View style={styles.tableContainer}>
-    <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
-      <Row data={Notas.tableHead} style={styles.head} textStyle={styles.text} />
-      <Rows
-        data={Notas.tableData}
-        textStyle={styles.text}
-        style={styles.row}
-        render={(rowData, index) => (
-          <Cell
-            key={index}
-            data={rowData}
-            textStyle={styles.cellText}
-            style={index % 2 === 0 ? styles.evenRow : styles.oddRow}
-          />
-        )}
-      />
-    </Table>
-  </View>
-)}
+      {Notas.tableData.length > 0 && (
+        <ScrollView horizontal>
+          <View style={styles.tableContainer}>
+            <View style={styles.tableHeader}>
+              {Notas.tableHead.map((head, index) => (
+                <View key={index} style={styles.cellHeader}>
+                  <Text style={styles.cellText}>{head}</Text>
+                </View>
+              ))}
+            </View>
+
+            {Notas.tableData.map((rowData, rowIndex) => (
+              <View key={rowIndex} style={styles.tableRow}>
+                {rowData.map((cellData, cellIndex) => (
+                  <View key={cellIndex} style={styles.cell}>
+                    <Text style={styles.cellText} numberOfLines={2} ellipsizeMode="tail">
+                      {cellData}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -136,23 +130,46 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   pickerContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
+  label: { fontWeight: 'bold' },
   tableContainer: {
     marginTop: 20,
   },
-  head: { height: 40, backgroundColor: '#808B97' },
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
+  tableHeader: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
   },
-  text: { 
-    margin: 6, 
+  tableRow: {
+    flexDirection: 'row',
   },
-    row: { height: 30 },
-  evenRow: { backgroundColor: '#F3F7F9' },
-  oddRow: { backgroundColor: 'white' },
-  cellText: { margin: 6 },
+  cellHeader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F1F8FF',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 8,
+    width: 100, // Ancho fijo de la celda
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  cell: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 8,
+    width: 100, // Ancho fijo de la celda
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  cellText: {
+    textAlign: 'center',
+  },
 });
 
 export default ReporteScreen;
