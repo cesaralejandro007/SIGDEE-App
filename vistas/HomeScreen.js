@@ -86,7 +86,7 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
-  const tableData = [['Reporte Area Emprend..', 'Notas Estudiantes', 'Perfil', 'Notificaciones', 'Salir']];
+  const tableData = [['Reporte Area Emprend..','Reporte de Estudiantes Por Ubicacion', 'Notas Estudiantes', 'Perfil', 'Salir']];
 
   return (
     <View style={styles.container}>
@@ -109,20 +109,20 @@ const HomeScreen = ({ navigation }) => {
         {tableData[0].map((data, index) => (
           <View style={styles.iconButton} key={index}>
             <IconButton
-              icon={data === 'Reporte Area Emprend..' ? 'chart-box' : data === 'Notas Estudiantes' ? 'chart-box' : data === 'Perfil' ? 'account' : data === 'Notificaciones' ? 'bell' : 'exit-to-app'}
+              icon={data === 'Reporte Area Emprend..' ? 'chart-box' : data === 'Reporte de Estudiantes Por Ubicacion' ? 'chart-box' : data === 'Notas Estudiantes' ? 'chart-box' : data === 'Perfil' ? 'account' : 'exit-to-app'}
               onPress={() => {
                 switch (data) {
                   case 'Reporte Area Emprend..':
                     navigation.navigate('Reporte de Estudiantes por Emprendimiento');
+                    break;
+                  case 'Reporte de Estudiantes Por Ubicacion':
+                    navigation.navigate('Reporte de Estudiantes Por Ubicacion');
                     break;
                   case 'Notas Estudiantes':
                     navigation.navigate('Notas de los estudiantes');
                     break;
                   case 'Perfil':
                     navigation.navigate('Perfil de Usuario');
-                    break;
-                  case 'Notificaciones':
-                    // Lógica para mostrar notificaciones
                     break;
                   case 'Salir':
                     confirmExit();
