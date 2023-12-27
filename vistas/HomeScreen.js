@@ -90,7 +90,7 @@ const HomeScreen = ({ navigation }) => {
   const menuItems = [
     'Reporte de estudiante por area emprendimiento',
     'Reporte de estudiantes por ubicación',
-    'Reporte de las notas de los estudiantes',
+    'Reporte de notas de los estudiantes',
     'Perfil',
     'Salir',
   ];
@@ -98,7 +98,7 @@ const HomeScreen = ({ navigation }) => {
   const iconMapping = {
     'Reporte de estudiante por area emprendimiento': 'insert-chart',
     'Reporte de estudiantes por ubicación': 'insert-chart',
-    'Reporte de las notas de los estudiantes': 'insert-chart',
+    'Reporte de notas de los estudiantes': 'insert-chart',
     'Perfil': 'person', // Cambiado de 'account' a 'person'
     'Salir': 'exit-to-app',
   };
@@ -142,7 +142,7 @@ const HomeScreen = ({ navigation }) => {
                 case 'Reporte de estudiantes por ubicación':
                   navigation.navigate('Reporte de Estudiantes Por Ubicacion');
                   break;
-                case 'Reporte de las notas de los estudiantes':
+                case 'Reporte de notas de los estudiantes':
                   navigation.navigate('Notas de los estudiantes');
                   break;
                 case 'Perfil':

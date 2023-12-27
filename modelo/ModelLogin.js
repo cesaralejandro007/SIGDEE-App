@@ -33,10 +33,14 @@ class ModelLogin {
       .then(data => {
         if (data.status === 1) {
           console.log(data.message);
+          return data.publicKey; // Retornar la clave pública generada
+        } else {
+          throw new Error('Error al generar claves RSA');
         }
       })
       .catch(error => {
         console.error('Error al generar claves RSA:', error);
+        throw error; // Propagar el error para que pueda ser manejado en la función llamadora
       });
   }
   
@@ -60,7 +64,7 @@ class ModelLogin {
       if (sessionData) {
         const sessionObj = JSON.parse(sessionData);
         await AsyncStorage.setItem('userSession', JSON.stringify(sessionObj));
-        Alert.alert('Éxito', 'Inicio Exitoso', [
+        Alert.alert('Éxito', 'Inicio de sesión exitoso. ¡Bienvenido!', [
           {
             text: 'OK',
             onPress: () => {
@@ -71,6 +75,7 @@ class ModelLogin {
       }
     } catch (error) {
       console.error('Error al obtener la sesión:', error);
+      Alert.alert('Error', 'Ocurrió un error al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde.');
     }
   }
 
@@ -121,7 +126,7 @@ class ModelLogin {
             console.error('Error:', error);
           });
       } else {
-        Alert.alert('Error', 'Complete los campos solicitados.', [
+        Alert.alert('Error', 'Completa todos los campos solicitados antes de iniciar sesión.', [
           {
             text: 'OK',
           },
@@ -129,6 +134,7 @@ class ModelLogin {
       }
     } catch (error) {
       console.error('Error al cifrar la contraseña:', error);
+      Alert.alert('Error', 'Ocurrió un error al intentar cifrar la contraseña. Por favor, inténtalo de nuevo.');
     }
   }
 }
