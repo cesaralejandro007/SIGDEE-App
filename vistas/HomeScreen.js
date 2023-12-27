@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import { Appbar, IconButton } from 'react-native-paper';
+import { View, Text, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import { Appbar } from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
 import { LocaleConfig } from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 LocaleConfig.locales['es'] = {
   monthNames: [
@@ -86,12 +87,29 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
-  const tableData = [['Reporte Area Emprend..','Reporte de Estudiantes Por Ubicacion', 'Notas Estudiantes', 'Perfil', 'Salir']];
+  const menuItems = [
+    'Reporte de estudiante por area emprendimiento',
+    'Reporte de estudiantes por ubicación',
+    'Reporte de las notas de los estudiantes',
+    'Perfil',
+    'Salir',
+  ];
+
+  const iconMapping = {
+    'Reporte de estudiante por area emprendimiento': 'insert-chart',
+    'Reporte de estudiantes por ubicación': 'insert-chart',
+    'Reporte de las notas de los estudiantes': 'insert-chart',
+    'Perfil': 'person', // Cambiado de 'account' a 'person'
+    'Salir': 'exit-to-app',
+  };
 
   return (
     <View style={styles.container}>
       <Appbar.Header style={styles.Header1}>
-        <Appbar.Content titleStyle={{ color: 'white' }} title={`¡Bienvenido/a de nuevo, ${nombreUsuario ? nombreUsuario : ''} 👋`} />
+        <Appbar.Content
+          titleStyle={{ color: 'white' }}
+          title={`¡Bienvenido/a de nuevo, ${nombreUsuario ? nombreUsuario : ''} 👋`}
+        />
       </Appbar.Header>
 
       <View style={styles.content}>
@@ -105,37 +123,44 @@ const HomeScreen = ({ navigation }) => {
         />
       </View>
 
-      <View style={styles.buttons}>
-        {tableData[0].map((data, index) => (
-          <View style={styles.iconButton} key={index}>
-            <IconButton
-              icon={data === 'Reporte Area Emprend..' ? 'chart-box' : data === 'Reporte de Estudiantes Por Ubicacion' ? 'chart-box' : data === 'Notas Estudiantes' ? 'chart-box' : data === 'Perfil' ? 'account' : 'exit-to-app'}
-              onPress={() => {
-                switch (data) {
-                  case 'Reporte Area Emprend..':
-                    navigation.navigate('Reporte de Estudiantes por Emprendimiento');
-                    break;
-                  case 'Reporte de Estudiantes Por Ubicacion':
-                    navigation.navigate('Reporte de Estudiantes Por Ubicacion');
-                    break;
-                  case 'Notas Estudiantes':
-                    navigation.navigate('Notas de los estudiantes');
-                    break;
-                  case 'Perfil':
-                    navigation.navigate('Perfil de Usuario');
-                    break;
-                  case 'Salir':
-                    confirmExit();
-                    break;
-                  default:
-                    break;
-                }
-              }}
-            />
-            <Text style={styles.label}>{data}</Text>
-          </View>
+      <ScrollView contentContainerStyle={styles.buttonsContainer}>
+        {menuItems.map((menuItem, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.button,
+              {
+                backgroundColor: index === menuItems.length - 1 ? '#C0392B' : '#2980B9',
+                height: 40, // Ajustar altura
+              },
+            ]}
+            onPress={() => {
+              switch (menuItem) {
+                case 'Reporte de estudiante por area emprendimiento':
+                  navigation.navigate('Reporte de Estudiantes por Emprendimiento');
+                  break;
+                case 'Reporte de estudiantes por ubicación':
+                  navigation.navigate('Reporte de Estudiantes Por Ubicacion');
+                  break;
+                case 'Reporte de las notas de los estudiantes':
+                  navigation.navigate('Notas de los estudiantes');
+                  break;
+                case 'Perfil':
+                  navigation.navigate('Perfil de Usuario');
+                  break;
+                case 'Salir':
+                  confirmExit();
+                  break;
+                default:
+                  break;
+              }
+            }}
+          >
+            <MaterialIcons name={iconMapping[menuItem]} size={24} color="white" />
+            <Text style={styles.label}>{menuItem}</Text>
+          </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -150,18 +175,23 @@ const styles = StyleSheet.create({
   content: {
     margin: 20,
   },
-  buttons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+  buttonsContainer: {
     marginTop: 10,
+    alignItems: 'stretch', // Alineación ajustada
   },
-  iconButton: {
+  button: {
+    flexDirection: 'row',
     alignItems: 'center',
-    margin: 10,
+    padding: 10,
+    marginHorizontal: 10,
+    marginVertical: 5,
+    borderRadius: 8,
   },
   label: {
-    marginTop: 5,
+    color: 'white',
+    textAlign: 'center', // Texto centrado
+    fontSize: 16,
+    marginLeft: 10,
   },
 });
 
