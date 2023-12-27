@@ -42,7 +42,15 @@ const ModelReporteEstudiantesUbicacionScreen = ({ navigation }) => {
       setIsLoading(true);
       Estudiant_ubicac.setSelectedEstados(option);
       const data = await Estudiant_ubicac.fetchBuscar_direcciones(option);
-      setChartData(data);
+  
+      // Map the fetched data and assign colors to each slice
+      const colors = ['#FF5733', '#33FF57', '#5733FF', '#FF33D1', '#33D1FF'];
+      const chartDataWithColors = data.map((item, index) => ({
+        ...item,
+        color: colors[index % colors.length], // Cycle through colors if more slices than colors
+      }));
+  
+      setChartData(chartDataWithColors);
     } catch (error) {
       console.error(error);
     } finally {
