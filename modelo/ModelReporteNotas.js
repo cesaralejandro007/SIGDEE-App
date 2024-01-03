@@ -55,7 +55,7 @@ class ModelReporteNotas{
       return data.datos;
     })
     .catch(error => {
-      console.error('Error fetching emprendimientos:', error);
+      console.error('Error fetching Emprendimiento:', error);
       throw error;
     });
   }

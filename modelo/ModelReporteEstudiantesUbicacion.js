@@ -33,7 +33,7 @@ class EstudiantesUbicacion{
       this.setPaises(paises);
     })
     .catch(error => {
-      console.error('Error fetching areas:', error);
+      console.error('Error fetching Paises:', error);
     });
   }
 
@@ -55,7 +55,7 @@ class EstudiantesUbicacion{
       return data.datos;
     })
     .catch(error => {
-      console.error('Error fetching emprendimientos:', error);
+      console.error('Error fetching Estados:', error);
       throw error;
     });
   }
@@ -80,7 +80,7 @@ class EstudiantesUbicacion{
       return data.datos;
     })
     .catch(error => {
-      console.error('Error fetching cursos:', error);
+      console.error('Error fetching Direcciones:', error);
       throw error;
     });
   }

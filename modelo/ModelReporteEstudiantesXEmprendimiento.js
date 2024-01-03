@@ -45,7 +45,7 @@ class ModelReporteEstudianteEmprendimiento {
       if (data && data.datos) {
         this.setReportData(data.datos);
       } else {
-        console.warn('Data is undefined in the response.');
+        console.warn('Los datos no están definidos en la respuesta.');
       }
       return data;
     })
