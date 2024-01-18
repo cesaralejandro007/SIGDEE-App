@@ -1,8 +1,9 @@
 import { Alert } from 'react-native';
-import IP from '../config/config';
+import Config from '../config/config';
 
-class EstudiantesUbicacion{
+class EstudiantesUbicacion extends Config {
   constructor() {
+    super();
     this.Paises = [];
     this.Estados = [];
     this.buscar_direcciones = [];
@@ -20,7 +21,7 @@ class EstudiantesUbicacion{
     const formData1 = new FormData();
     formData1.append('accion', 'listadopaises_app');
     
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=OXJ2U0tOMlljLzRIVXRyZTRMK3ZtaGVkb2RiMHdBK0Z0azJjeThaNzIrQT0=`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=OXJ2U0tOMlljLzRIVXRyZTRMK3ZtaGVkb2RiMHdBK0Z0azJjeThaNzIrQT0=`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -42,7 +43,7 @@ class EstudiantesUbicacion{
     formData2.append('accion', 'listadoestados_app');
     formData2.append('pais', datos.key);
 
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=OXJ2U0tOMlljLzRIVXRyZTRMK3ZtaGVkb2RiMHdBK0Z0azJjeThaNzIrQT0=`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=OXJ2U0tOMlljLzRIVXRyZTRMK3ZtaGVkb2RiMHdBK0Z0azJjeThaNzIrQT0=`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -67,7 +68,7 @@ class EstudiantesUbicacion{
     formData3.append('pais', this.selectedPais);
     formData3.append('estado', datos.key);
 
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=OXJ2U0tOMlljLzRIVXRyZTRMK3ZtaGVkb2RiMHdBK0Z0azJjeThaNzIrQT0=`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=OXJ2U0tOMlljLzRIVXRyZTRMK3ZtaGVkb2RiMHdBK0Z0azJjeThaNzIrQT0=`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',

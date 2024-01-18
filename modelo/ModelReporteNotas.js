@@ -1,8 +1,9 @@
 import { Alert } from 'react-native';
-import IP from '../config/config';
+import Config from '../config/config';
 
-class ModelReporteNotas{
+class ModelReporteNotas extends Config {
   constructor() {
+    super();
     this.areasEmprendimiento = [];
     this.emprendimientos = [];
     this.cursos = [];
@@ -20,7 +21,7 @@ class ModelReporteNotas{
     const formData1 = new FormData();
     formData1.append('accion', 'listadoareas_app');
     
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -42,7 +43,7 @@ class ModelReporteNotas{
     formData2.append('accion', 'listadoemprendimientos_app');
     formData2.append('area', datos.key);
 
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -66,7 +67,7 @@ class ModelReporteNotas{
     formData3.append('area', this.selectedArea);
     formData3.append('emprendimiento', datos.key);
 
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -89,7 +90,7 @@ class ModelReporteNotas{
     formData4.append('accion', 'consulta_aprobados_reprobados');
     formData4.append('aula', datos.key);
 
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=VnhadFd4cTllSFd4akZ6NDRqNXlsUT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',

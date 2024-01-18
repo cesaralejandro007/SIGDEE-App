@@ -2,22 +2,22 @@ import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import forge from 'node-forge';
 import base64 from 'base-64';
-import IP from './../config/config';
+import Config  from './../config/config';
 
-class ModelLogin {
+class ModelLogin extends Config {
   constructor({ navigation }) {
+    super();
     this.navigation = navigation;
     this.publicKey = null;
     this.requestCounter = 0;
   }
-
   generarClavePublica() {
     this.requestCounter++;
     const formData = new FormData();
     formData.append('accion', 'generar_llaves_rsa');
     formData.append('counter', this.requestCounter);
   
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -52,7 +52,7 @@ class ModelLogin {
     formData2.append('user', encryptedUserBase64);
 
     try {
-      const response = await fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+      const response = await fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -101,7 +101,7 @@ class ModelLogin {
         formData1.append('user', encryptedUserBase64);
         formData1.append('password', encryptedPasswordBase64);
 
-        fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
+        fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=U1RWUkk1S0N6RGdoZ3RMZUFFUmpiUT09`, {
           method: 'POST',
           headers: {
             'Content-Type': 'multipart/form-data',

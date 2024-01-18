@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import IP from './../config/config';
+import Config  from './../config/config';
 
-class ModelProfile {
+class ModelProfile extends Config {
   async getDatosUsuario() {
     const session = await AsyncStorage.getItem('userSession');
 
@@ -29,7 +29,7 @@ class ModelProfile {
     formData.append('correo', editedEmail);
     formData.append('telefono', editedTelefono);
 
-    const response = await fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=NWY0U0dmUXFHUEsvTTkzV3pQV081QT09`, {
+    const response = await fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=NWY0U0dmUXFHUEsvTTkzV3pQV081QT09`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',

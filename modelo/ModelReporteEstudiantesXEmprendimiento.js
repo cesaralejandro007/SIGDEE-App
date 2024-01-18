@@ -1,7 +1,7 @@
-import IP from '../config/config';
-
-class ModelReporteEstudianteEmprendimiento {
+import Config from '../config/config';
+class ModelReporteEstudianteEmprendimiento extends Config {
   constructor() {
+    super();
     this.areasEmprendimiento = [];
     this.selectedAreaText = "Selecciona una opción";
     this.reportData = [];
@@ -11,7 +11,7 @@ class ModelReporteEstudianteEmprendimiento {
     const formData1 = new FormData();
     formData1.append('accion', 'listadoareas_app');
     
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=WGpGMXNRNFJkS3lWek1sVEprem10OU45M0ZjbWs4dCtZUHZlV2xWYkZhMEJFVnVPbGRxZjJoZ1NKVWZOVkRaTg==`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=WGpGMXNRNFJkS3lWek1sVEprem10OU45M0ZjbWs4dCtZUHZlV2xWYkZhMEJFVnVPbGRxZjJoZ1NKVWZOVkRaTg==`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -33,7 +33,7 @@ class ModelReporteEstudianteEmprendimiento {
     formData2.append('accion', 'reporte_estudiante_emprendimiento');
     formData2.append('area', datos.key);
 
-    return fetch(`http://${IP}/dashboard/www/SIGDEE/?pagina=WGpGMXNRNFJkS3lWek1sVEprem10OU45M0ZjbWs4dCtZUHZlV2xWYkZhMEJFVnVPbGRxZjJoZ1NKVWZOVkRaTg==`, {
+    return fetch(`http://${this.getIP()}/dashboard/www/SIGDEE/?pagina=WGpGMXNRNFJkS3lWek1sVEprem10OU45M0ZjbWs4dCtZUHZlV2xWYkZhMEJFVnVPbGRxZjJoZ1NKVWZOVkRaTg==`, {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
