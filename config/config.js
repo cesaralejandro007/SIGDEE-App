@@ -1,6 +1,6 @@
 class Config {
     constructor() {
-      this.IP = '192.168.0.152';
+      this.IP = '192.168.250.9';
     }
   
     getIP() {
