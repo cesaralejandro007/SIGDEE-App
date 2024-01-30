@@ -48,7 +48,6 @@ export default function App() {
             { label: 'Super Usuario', key: 'Super Usuario' },
             { label: 'Administrador', key: 'Administrador' },
             { label: 'Docente', key: 'Docente' },
-            { label: 'Estudiante', key: 'Estudiante' },
           ]}
           initValue={`Selecciona un rol`}
           onChange={(item) => setSelectedRole(item)}

@@ -32,6 +32,7 @@ LocaleConfig.defaultLocale = 'es';
 const HomeScreen = ({ navigation }) => {
   const [nombreUsuario, setNombreUsuario] = useState(null);
   const [selected, setSelected] = useState('');
+  const [esDocente, setEsDocente] = useState(false); // Variable para verificar si el usuario es docente
 
   useEffect(() => {
     async function obtenerNombreUsuario() {
@@ -48,8 +49,11 @@ const HomeScreen = ({ navigation }) => {
           const primerValorA = arreglo1[0];
 
           const nombre_apellido = primerValorN + ' ' + primerValorA;
-
           setNombreUsuario(nombre_apellido);
+          // Verificar si el usuario es docente
+          if (dato[0].nombreusuario === 'Docente') {
+            setEsDocente(true);
+          }
         } else {
           navigation.navigate('Inicio de Sesion');
         }
@@ -124,14 +128,15 @@ const HomeScreen = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.buttonsContainer}>
-        {menuItems.map((menuItem, index) => (
+      {menuItems.map((menuItem, index) => (
+        (!esDocente || (esDocente && ['Reporte de notas de los estudiantes', 'Perfil', 'Salir'].includes(menuItem))) && (
           <TouchableOpacity
             key={index}
             style={[
               styles.button,
               {
                 backgroundColor: index === menuItems.length - 1 ? '#C0392B' : '#2980B9',
-                height: 40, // Ajustar altura
+                height: 40,
               },
             ]}
             onPress={() => {
@@ -159,8 +164,9 @@ const HomeScreen = ({ navigation }) => {
             <MaterialIcons name={iconMapping[menuItem]} size={24} color="white" />
             <Text style={styles.label}>{menuItem}</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        )
+      ))}
+    </ScrollView>
     </View>
   );
 };
