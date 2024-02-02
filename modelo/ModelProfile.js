@@ -56,6 +56,7 @@ class ModelProfile extends Config {
 
     const data = await response.json();
     if (data.estatus == 1) {
+      /* console.log(data); */
       return { success: data.message };
     } else {
       return { error: data.message };

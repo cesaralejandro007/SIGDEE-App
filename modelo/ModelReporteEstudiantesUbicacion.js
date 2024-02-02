@@ -30,6 +30,7 @@ class EstudiantesUbicacion extends Config {
     })
     .then(response => response.json())
     .then(data => {
+       /* console.log(data.datos); */
       const paises = data.datos || [];
       this.setPaises(paises);
     })
@@ -52,6 +53,7 @@ class EstudiantesUbicacion extends Config {
     })
     .then(response => response.json())
     .then(data => {
+      /* console.log(data.datos); */
       this.setEstados(data.datos);
       return data.datos;
     })
@@ -77,6 +79,7 @@ class EstudiantesUbicacion extends Config {
     })
     .then(response => response.json())
     .then(data => {
+       /* console.log(data.datos); */
       this.setdirecciones(data.datos);
       return data.datos;
     })

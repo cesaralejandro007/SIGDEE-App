@@ -63,6 +63,7 @@ class ModelLogin extends Config {
 
       if (sessionData) {
         const sessionObj = JSON.parse(sessionData);
+        /* console.log(sessionObj); */
         await AsyncStorage.setItem('userSession', JSON.stringify(sessionObj));
         Alert.alert('Éxito', 'Inicio de sesión exitoso. ¡Bienvenido!', [
           {
@@ -112,6 +113,7 @@ class ModelLogin extends Config {
           .then((text) => {
             try {
               const data = JSON.parse(text);
+              /* console.log(data); */
               if (data.estatus == 1) {
                 // Llamamos al método obtenerDatosDeSesion para obtener los datos de la sesión
                 this.obtenerDatosDeSesion(encryptedTipoBase64, encryptedUserBase64);

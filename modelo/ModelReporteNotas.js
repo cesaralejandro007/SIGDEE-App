@@ -30,6 +30,7 @@ class ModelReporteNotas extends Config {
     })
     .then(response => response.json())
     .then(data => {
+       /* console.log(data.datos); */
       const areas = data.datos || [];
       this.setAreasEmprendimiento(areas);
     })
@@ -76,6 +77,7 @@ class ModelReporteNotas extends Config {
     })
     .then(response => response.json())
     .then(data => {
+       /* console.log(data.datos); */
       this.setCursos(data.datos);
       return data.datos;
     })
@@ -99,6 +101,7 @@ class ModelReporteNotas extends Config {
     })
     .then(response => response.json())
     .then(data => {
+       /* console.log(data); */
       const head = data.head;
       this.setTableHead(head);
 

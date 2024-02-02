@@ -20,6 +20,7 @@ class ModelReporteEstudianteEmprendimiento extends Config {
     })
     .then(response => response.json())
     .then(data => {
+       /* console.log(data.datos); */
       const areas = data.datos || [];
       this.setAreasEmprendimiento(areas);
     })
@@ -42,6 +43,7 @@ class ModelReporteEstudianteEmprendimiento extends Config {
     })
     .then(response => response.json())
     .then(data => {
+       /* console.log(data.datos); */
       if (data && data.datos) {
         this.setReportData(data.datos);
       } else {
